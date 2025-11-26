@@ -1,0 +1,92 @@
+# .NET Core
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+.vs/
+.vscode/
+*.swp
+*.*~
+project.lock.json
+.DS_Store
+*.pyc
+nupkg/
+
+# Docker
+.dockerignore
+**/.dockerignore
+**/Dockerfile
+**/Dockerfile.*
+**/.env
+**/.docker
+
+# IDE
+.idea/
+*.sln.iml
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+coverage.*
+coverage
+*.coverage.*
+
+# Build results
+artifacts/
+_build/
+build/
+out/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# Local development
+*.Development.json
+appsettings.*.json
+
+# Secrets
+secrets.json
+appsecrets.json
+
+# Logs
+*.log
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Rider
+.idea/
+*.sln.iml
+
+# User-specific files
+*.rsuser
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+# Local History for Visual Studio
+.localhistory/
