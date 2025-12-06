@@ -1,0 +1,40 @@
+using Provisioning.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace Provisioning.Infrastructure.Data;
+
+public class ProvisioningDbContext : DbContext
+{
+    public ProvisioningDbContext(DbContextOptions<ProvisioningDbContext> options) : base(options)
+    {
+    }
+
+    public DbSet<ProvisioningRequest> ProvisioningRequests => Set<ProvisioningRequest>();
+    public DbSet<SimCard> SimCards => Set<SimCard>();
+    public DbSet<Device> Devices => Set<Device>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<ProvisioningRequest>(entity =>
+        {
+            entity.ToTable("ProvisioningRequests");
+            entity.HasKey(e => e.Id);
+        });
+
+        modelBuilder.Entity<SimCard>(entity =>
+        {
+            entity.ToTable("SimCards");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.ICCID).IsUnique();
+        });
+
+        modelBuilder.Entity<Device>(entity =>
+        {
+            entity.ToTable("Devices");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.IMEI).IsUnique();
+        });
+    }
+}

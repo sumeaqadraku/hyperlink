@@ -1,24 +1,143 @@
-version: '3.8'
-
 services:
+  # ============================================
+  # MySQL Databases (Telecom Services)
+  # ============================================
+  
+  catalog-db:
+    image: mysql:8.0.40
+    container_name: catalog-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongPassword123!
+      MYSQL_DATABASE: catalogdb
+      MYSQL_USER: cataloguser
+      MYSQL_PASSWORD: CatalogPass123!
+    ports:
+      - "3316:3306"
+    volumes:
+      - catalog-db-data:/var/lib/mysql
+    networks:
+      - telecom-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pYourStrongPassword123!"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  billing-db:
+    image: mysql:8.0.40
+    container_name: billing-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongPassword123!
+      MYSQL_DATABASE: billingdb
+      MYSQL_USER: billinguser
+      MYSQL_PASSWORD: BillingPass123!
+    ports:
+      - "3317:3306"
+    volumes:
+      - billing-db-data:/var/lib/mysql
+    networks:
+      - telecom-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pYourStrongPassword123!"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  customer-db:
+    image: mysql:8.0.40
+    container_name: customer-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongPassword123!
+      MYSQL_DATABASE: customerdb
+      MYSQL_USER: customeruser
+      MYSQL_PASSWORD: CustomerPass123!
+    ports:
+      - "3318:3306"
+    volumes:
+      - customer-db-data:/var/lib/mysql
+    networks:
+      - telecom-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pYourStrongPassword123!"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  provisioning-db:
+    image: mysql:8.0.40
+    container_name: provisioning-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongPassword123!
+      MYSQL_DATABASE: provisioningdb
+      MYSQL_USER: provisioninguser
+      MYSQL_PASSWORD: ProvisioningPass123!
+    ports:
+      - "3319:3306"
+    volumes:
+      - provisioning-db-data:/var/lib/mysql
+    networks:
+      - telecom-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pYourStrongPassword123!"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Existing API Services
+  # ============================================
+
   hyperlink-api:
     image: ${DOCKER_REGISTRY-}hyperlinkapi
     build:
       context: .
       dockerfile: src/hyperlink.api/Dockerfile
+    container_name: hyperlink-api
+    restart: unless-stopped
     ports:
       - "5000:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+    networks:
+      - telecom-network
 
   identity-api:
     image: ${DOCKER_REGISTRY-}identityapi
     build:
       context: .
       dockerfile: src/services/identityservice/src/identityservice.api/Dockerfile
+    container_name: identity-api
+    restart: unless-stopped
     ports:
       - "5001:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+    networks:
+      - telecom-network
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  telecom-network:
+    driver: bridge
+    name: telecom-network
+
+# ============================================
+# Volumes (Persistent Storage)
+# ============================================
+volumes:
+  catalog-db-data:
+    name: catalog-db-data
+  billing-db-data:
+    name: billing-db-data
+  customer-db-data:
+    name: customer-db-data
+  provisioning-db-data:
+    name: provisioning-db-data

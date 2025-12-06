@@ -1,0 +1,159 @@
+services:
+  # Databases
+  catalog-db:
+    image: mysql:8.0
+    container_name: catalog-db
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongPassword123!
+      MYSQL_DATABASE: catalogdb
+    ports:
+      - "3316:3306"
+    volumes:
+      - catalog-db-data:/var/lib/mysql
+    networks:
+      - telecom-network
+
+  billing-db:
+    image: mysql:8.0
+    container_name: billing-db
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongPassword123!
+      MYSQL_DATABASE: billingdb
+    ports:
+      - "3317:3306"
+    volumes:
+      - billing-db-data:/var/lib/mysql
+    networks:
+      - telecom-network
+
+  customer-db:
+    image: mysql:8.0
+    container_name: customer-db
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongPassword123!
+      MYSQL_DATABASE: customerdb
+    ports:
+      - "3318:3306"
+    volumes:
+      - customer-db-data:/var/lib/mysql
+    networks:
+      - telecom-network
+
+  provisioning-db:
+    image: mysql:8.0
+    container_name: provisioning-db
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongPassword123!
+      MYSQL_DATABASE: provisioningdb
+    ports:
+      - "3319:3306"
+    volumes:
+      - provisioning-db-data:/var/lib/mysql
+    networks:
+      - telecom-network
+
+  # Microservices
+  catalog-api:
+    build:
+      context: ./src/Services/Catalog
+      dockerfile: Catalog.API/Dockerfile
+    container_name: catalog-api
+    ports:
+      - "8001:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=catalog-db;Port=3306;Database=catalogdb;User=root;Password=YourStrongPassword123!;
+    depends_on:
+      - catalog-db
+    networks:
+      - telecom-network
+
+  billing-api:
+    build:
+      context: ./src/Services/Billing
+      dockerfile: Billing.API/Dockerfile
+    container_name: billing-api
+    ports:
+      - "8002:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=billing-db;Port=3306;Database=billingdb;User=root;Password=YourStrongPassword123!;
+    depends_on:
+      - billing-db
+    networks:
+      - telecom-network
+
+  customer-api:
+    build:
+      context: ./src/Services/Customer
+      dockerfile: Customer.API/Dockerfile
+    container_name: customer-api
+    ports:
+      - "8003:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=customer-db;Port=3306;Database=customerdb;User=root;Password=YourStrongPassword123!;
+    depends_on:
+      - customer-db
+    networks:
+      - telecom-network
+
+  provisioning-api:
+    build:
+      context: ./src/Services/Provisioning
+      dockerfile: Provisioning.API/Dockerfile
+    container_name: provisioning-api
+    ports:
+      - "8004:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=provisioning-db;Port=3306;Database=provisioningdb;User=root;Password=YourStrongPassword123!;
+    depends_on:
+      - provisioning-db
+    networks:
+      - telecom-network
+
+  gateway-api:
+    build:
+      context: ./src/Services/Gateway
+      dockerfile: Gateway.API/Dockerfile
+    container_name: gateway-api
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address=http://catalog-api:8080
+      - ReverseProxy__Clusters__billing-cluster__Destinations__destination1__Address=http://billing-api:8080
+      - ReverseProxy__Clusters__customer-cluster__Destinations__destination1__Address=http://customer-api:8080
+      - ReverseProxy__Clusters__provisioning-cluster__Destinations__destination1__Address=http://provisioning-api:8080
+    depends_on:
+      - catalog-api
+      - billing-api
+      - customer-api
+      - provisioning-api
+    networks:
+      - telecom-network
+
+  frontend:
+    build:
+      context: ./src/Frontend/telecom-web-app
+      dockerfile: Dockerfile
+    container_name: telecom-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - gateway-api
+    networks:
+      - telecom-network
+
+networks:
+  telecom-network:
+    driver: bridge
+
+volumes:
+  catalog-db-data:
+  billing-db-data:
+  customer-db-data:
+  provisioning-db-data:
