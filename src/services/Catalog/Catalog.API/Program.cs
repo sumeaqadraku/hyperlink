@@ -1,6 +1,7 @@
 using Catalog.API.Middleware;
 using Catalog.Application;
 using Catalog.Infrastructure;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

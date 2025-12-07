@@ -1,5 +1,6 @@
 using Billing.Application;
 using Billing.Infrastructure;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 

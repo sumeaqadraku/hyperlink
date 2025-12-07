@@ -55,8 +55,8 @@ services:
   # Microservices
   catalog-api:
     build:
-      context: ./src/Services/Catalog
-      dockerfile: Catalog.API/Dockerfile
+      context: ./src
+      dockerfile: services/Catalog/Catalog.API/Dockerfile
     container_name: catalog-api
     ports:
       - "8001:8080"
@@ -70,8 +70,8 @@ services:
 
   billing-api:
     build:
-      context: ./src/Services/Billing
-      dockerfile: Billing.API/Dockerfile
+      context: ./src
+      dockerfile: services/Billing/Billing.API/Dockerfile
     container_name: billing-api
     ports:
       - "8002:8080"
@@ -85,8 +85,8 @@ services:
 
   customer-api:
     build:
-      context: ./src/Services/Customer
-      dockerfile: Customer.API/Dockerfile
+      context: ./src
+      dockerfile: services/Customer/Customer.API/Dockerfile
     container_name: customer-api
     ports:
       - "8003:8080"
@@ -100,8 +100,8 @@ services:
 
   provisioning-api:
     build:
-      context: ./src/Services/Provisioning
-      dockerfile: Provisioning.API/Dockerfile
+      context: ./src
+      dockerfile: services/Provisioning/Provisioning.API/Dockerfile
     container_name: provisioning-api
     ports:
       - "8004:8080"
@@ -115,8 +115,8 @@ services:
 
   gateway-api:
     build:
-      context: ./src/Services/Gateway
-      dockerfile: Gateway.API/Dockerfile
+      context: ./src
+      dockerfile: services/Gateway/Gateway.API/Dockerfile
     container_name: gateway-api
     ports:
       - "5000:8080"

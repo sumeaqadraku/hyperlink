@@ -18,8 +18,8 @@ nupkg/
 # Docker
 .dockerignore
 **/.dockerignore
-**/Dockerfile
-**/Dockerfile.*
+# **/Dockerfile  # Commented out - we need Dockerfiles in version control
+# **/Dockerfile.*
 **/.env
 **/.docker
 

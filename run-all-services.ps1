@@ -50,4 +50,4 @@ Write-Host "  Customer:  http://localhost:8003/swagger" -ForegroundColor White
 Write-Host "  Provision: http://localhost:8004/swagger" -ForegroundColor White
 Write-Host ""
 Write-Host "Press any key to continue..." -ForegroundColor Gray
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')

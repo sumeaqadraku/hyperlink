@@ -1,5 +1,6 @@
 using Customer.Application;
 using Customer.Infrastructure;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
