@@ -260,7 +260,7 @@ Each service has health check endpoints:
 
 1. ✅ Services are running
 2. ✅ Databases are created and migrated
-3. 📝 Test the APIs via Swagger
+Note: The Catalog service seeds sample products and tariff plans on first startup if the database is empty.3. 📝 Test the APIs via Swagger
 4. 🎨 Open the frontend at http://localhost:3000
 5. 🔍 Monitor logs with `docker-compose logs -f`
 6. 🎯 Start building your features!

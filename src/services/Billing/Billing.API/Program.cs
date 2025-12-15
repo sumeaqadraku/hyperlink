@@ -25,6 +25,24 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+// Run DB seeding
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var seeder = services.GetRequiredService<Billing.Infrastructure.Data.Seed.BillingDbSeeder>();
+        await seeder.SeedAsync();
+        var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("BillingDbSeeder");
+        logger.LogInformation("Billing DB seeded successfully");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("BillingDbSeeder");
+        logger.LogError(ex, "An error occurred while seeding the Billing database.");
+    }
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -37,3 +55,6 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 app.Run();
+
+// Expose Program class for integration tests
+public partial class Program { }
