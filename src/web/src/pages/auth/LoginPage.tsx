@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
@@ -43,19 +45,20 @@ export default function LoginPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (validateForm()) {
-      // TODO: Implement actual login logic with your backend
-      console.log('Login attempt:', formData)
-      
-      // Simulate successful login
-      // In a real app, you would call your authentication API here
-      // Example: await authService.login(formData.email, formData.password)
-      
-      // After successful login, navigate to dashboard
-      navigate('/dashboard')
+      try {
+        // Use global auth context to login
+        await login(formData.email, formData.password)
+        
+        // After successful login, navigate to dashboard
+        navigate('/dashboard')
+      } catch (error) {
+        setErrors({ email: 'Invalid email or password' })
+        console.error('Login error:', error)
+      }
     }
   }
 

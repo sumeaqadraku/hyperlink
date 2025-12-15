@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import { User, Mail, Lock, Eye, EyeOff, Phone as PhoneIcon } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function SignUpPage() {
   const navigate = useNavigate()
+  const { signup } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -86,19 +88,25 @@ export default function SignUpPage() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (validateForm()) {
-      // TODO: Implement actual signup logic with your backend
-      console.log('Sign up attempt:', formData)
-      
-      // Simulate successful signup
-      // In a real app, you would call your authentication API here
-      // Example: await authService.signup(formData)
-      
-      // After successful signup, navigate to dashboard or login
-      navigate('/login')
+      try {
+        // Use global auth context to signup
+        await signup({
+          fullName: formData.fullName,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+        })
+        
+        // After successful signup, navigate to login
+        navigate('/login')
+      } catch (error) {
+        setErrors({ email: 'Email already exists or signup failed' })
+        console.error('Signup error:', error)
+      }
     }
   }
 

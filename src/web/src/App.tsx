@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
 import { PublicLayout } from './layouts/PublicLayout'
 import { DashboardLayout } from './layouts/DashboardLayout'
 
@@ -22,31 +23,33 @@ import UsagePage from './pages/dashboard/UsagePage'
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Auth Routes (Standalone - no layout) */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Auth Routes (Standalone - no layout) */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
 
-        {/* Public Routes */}
-        <Route path="/" element={<PublicLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="offers" element={<OffersPage />} />
-          <Route path="offers/:id" element={<OfferDetailsPage />} />
-          <Route path="profile" element={<ProfilePage />} />
-        </Route>
+          {/* Public Routes */}
+          <Route path="/" element={<PublicLayout />}>
+            <Route index element={<HomePage />} />
+            <Route path="offers" element={<OffersPage />} />
+            <Route path="offers/:id" element={<OfferDetailsPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+          </Route>
 
-        {/* Dashboard Routes */}
-        <Route path="/dashboard" element={<DashboardLayout />}>
-          <Route index element={<DashboardOverview />} />
-          <Route path="catalog" element={<CatalogManagement />} />
-          <Route path="subscriptions" element={<SubscriptionsPage />} />
-          <Route path="billing" element={<BillingPage />} />
-          <Route path="billing/invoice/:id" element={<InvoiceDetailsPage />} />
-          <Route path="usage" element={<UsagePage />} />
-        </Route>
-      </Routes>
-    </Router>
+          {/* Dashboard Routes */}
+          <Route path="/dashboard" element={<DashboardLayout />}>
+            <Route index element={<DashboardOverview />} />
+            <Route path="catalog" element={<CatalogManagement />} />
+            <Route path="subscriptions" element={<SubscriptionsPage />} />
+            <Route path="billing" element={<BillingPage />} />
+            <Route path="billing/invoice/:id" element={<InvoiceDetailsPage />} />
+            <Route path="usage" element={<UsagePage />} />
+          </Route>
+        </Routes>
+      </Router>
+    </AuthProvider>
   )
 }
 

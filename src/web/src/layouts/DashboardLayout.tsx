@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { UserProfileDropdown } from '@/components/ui/UserProfileDropdown'
+import { useAuth } from '@/contexts/AuthContext'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -22,6 +23,7 @@ const navigation = [
 
 export function DashboardLayout() {
   const location = useLocation()
+  const { user } = useAuth()
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,9 +45,9 @@ export function DashboardLayout() {
               <Bell className="h-5 w-5" />
             </Button>
             <UserProfileDropdown 
-              userName="Admin User"
-              userRole="Administrator"
-              isAdmin={true}
+              userName={user?.name || 'User'}
+              userRole={user?.role || 'Member'}
+              isAdmin={user?.isAdmin || false}
             />
           </div>
         </div>

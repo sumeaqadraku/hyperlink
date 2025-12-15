@@ -1,12 +1,11 @@
-import { useState } from 'react'
 import { Outlet, Link } from 'react-router-dom'
 import { Mail, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { UserProfileDropdown } from '@/components/ui/UserProfileDropdown'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function PublicLayout() {
-  // TODO: Replace with actual authentication state from your auth context/service
-  const [isLoggedIn] = useState(false)
+  const { isLoggedIn, user } = useAuth()
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -36,9 +35,9 @@ export function PublicLayout() {
             <div className="flex items-center space-x-4">
               {isLoggedIn ? (
                 <UserProfileDropdown 
-                  userName="John Smith"
-                  userRole="Premium Member"
-                  isAdmin={false}
+                  userName={user?.name || 'User'}
+                  userRole={user?.role || 'Member'}
+                  isAdmin={user?.isAdmin || false}
                 />
               ) : (
                 <div className="flex items-center gap-4">

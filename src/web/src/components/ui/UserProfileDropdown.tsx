@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   User,
   CreditCard,
@@ -11,6 +11,7 @@ import {
   ChevronDown,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface UserProfileDropdownProps {
   userName?: string
@@ -27,6 +28,8 @@ export function UserProfileDropdown({
 }: UserProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
+  const { logout } = useAuth()
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -39,6 +42,11 @@ export function UserProfileDropdown({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
 
   const menuItems = [
     {
@@ -158,8 +166,7 @@ export function UserProfileDropdown({
             <button
               onClick={() => {
                 setIsOpen(false)
-                // Handle logout logic here
-                console.log('Logout clicked')
+                handleLogout()
               }}
               className="flex items-center w-full px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors group"
             >
