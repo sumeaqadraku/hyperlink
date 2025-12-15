@@ -34,6 +34,12 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot
 
 Start-Sleep -Seconds 2
 
+# Start Identity Service
+Write-Host "🔐 Starting Identity Service (Port 5078)..." -ForegroundColor Cyan
+Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\src\Services\identityservice\src\identityservice.api'; dotnet run"
+
+Start-Sleep -Seconds 2
+
 # Start Frontend
 Write-Host "🎨 Starting Frontend (Port 3000)..." -ForegroundColor Cyan
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd '$PSScriptRoot\src\Frontend\telecom-web-app'; npm run dev"
@@ -44,6 +50,7 @@ Write-Host ""
 Write-Host "Access the application at:" -ForegroundColor Yellow
 Write-Host "  Frontend:  http://localhost:3000" -ForegroundColor White
 Write-Host "  Gateway:   http://localhost:5000" -ForegroundColor White
+Write-Host "  Identity:  http://localhost:5078/swagger" -ForegroundColor White
 Write-Host "  Catalog:   http://localhost:8001/swagger" -ForegroundColor White
 Write-Host "  Billing:   http://localhost:8002/swagger" -ForegroundColor White
 Write-Host "  Customer:  http://localhost:8003/swagger" -ForegroundColor White

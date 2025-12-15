@@ -87,6 +87,27 @@ services:
       timeout: 5s
       retries: 5
 
+  identity-db:
+    image: mysql:8.0.40
+    container_name: identity-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: YourStrongPassword123!
+      MYSQL_DATABASE: identitydb
+      MYSQL_USER: identityuser
+      MYSQL_PASSWORD: IdentityPass123!
+    ports:
+      - "3320:3306"
+    volumes:
+      - identity-db-data:/var/lib/mysql
+    networks:
+      - telecom-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pYourStrongPassword123!"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ============================================
   # Existing API Services
   # ============================================
@@ -110,7 +131,7 @@ services:
     image: ${DOCKER_REGISTRY-}identityapi
     build:
       context: .
-      dockerfile: src/services/identityservice/src/identityservice.api/Dockerfile
+      dockerfile: Services/identityservice/src/identityservice.api/Dockerfile
     container_name: identity-api
     restart: unless-stopped
     ports:
@@ -118,6 +139,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=identity-db;Port=3306;Database=identitydb;User=identityuser;Password=IdentityPass123!;
+    depends_on:
+      - identity-db
     networks:
       - telecom-network
 
@@ -141,3 +165,5 @@ volumes:
     name: customer-db-data
   provisioning-db-data:
     name: provisioning-db-data
+  identity-db-data:
+    name: identity-db-data
