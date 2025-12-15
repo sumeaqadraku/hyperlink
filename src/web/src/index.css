@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Background Colors */
+    --background: 36 23% 84%; /* #E1D4C2 - main page background */
+    --foreground: 32 42% 13%; /* #291C0E - dark brown text */
+    
+    /* Card Colors */
+    --card: 30 14% 72%; /* #BEB5A9 - card background */
+    --card-foreground: 32 42% 13%; /* #291C0E - card text */
+    
+    /* Popover Colors */
+    --popover: 30 14% 72%; /* #BEB5A9 */
+    --popover-foreground: 32 42% 13%; /* #291C0E */
+    
+    /* Primary Brand Color */
+    --primary: 32 42% 13%; /* #291C0E - dark brown */
+    --primary-foreground: 0 0% 100%; /* white text */
+    
+    /* Secondary Accent Color */
+    --secondary: 17 28% 33%; /* #6E473B - medium brown */
+    --secondary-foreground: 0 0% 100%; /* white text */
+    
+    /* Muted Colors */
+    --muted: 30 18% 58%; /* #A78D78 - soft brown */
+    --muted-foreground: 32 42% 13%; /* #291C0E */
+    
+    /* Accent Colors */
+    --accent: 17 28% 33%; /* #6E473B - secondary accent */
+    --accent-foreground: 0 0% 100%; /* white text */
+    
+    /* Destructive/Error */
+    --destructive: 0 84.2% 60.2%; /* red for errors */
+    --destructive-foreground: 210 40% 98%;
+    
+    /* Borders & Inputs */
+    --border: 30 18% 58%; /* #A78D78 - soft brown borders */
+    --input: 30 14% 72%; /* #BEB5A9 - input background */
+    --ring: 17 28% 33%; /* #6E473B - focus ring */
+    
+    --radius: 0.5rem;
+    
+    /* Success Color */
+    --success: 142 76% 36%; /* green for success states */
+    --success-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
