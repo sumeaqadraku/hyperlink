@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import axios from 'axios'
 
 interface User {
   name: string
@@ -28,41 +29,85 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [user, setUser] = useState<User | null>(null)
 
-  const login = async (email: string, password: string) => {
-    // TODO: Replace with actual API call to your backend
-    // Example: const response = await api.post('/auth/login', { email, password })
+  useEffect(() => {
+    const token = localStorage.getItem('authToken')
+    const storedUser = localStorage.getItem('user')
     
-    console.log('Login attempt:', { email, password })
-    
-    // Simulate successful login with mock data
-    const mockUser: User = {
-      name: 'John Smith',
-      email: email,
-      role: 'Premium Member',
-      isAdmin: false,
+    if (token && storedUser) {
+      setUser(JSON.parse(storedUser))
+      setIsLoggedIn(true)
     }
-    
-    setUser(mockUser)
-    setIsLoggedIn(true)
-    
-    // Store token in localStorage (in real app, you'd get this from backend)
-    localStorage.setItem('authToken', 'mock-token-123')
+  }, [])
+
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await axios.post('/auth/login', { email, password })
+      
+      const { token, refreshToken, role } = response.data
+      
+      const userData: User = {
+        name: email.split('@')[0],
+        email: email,
+        role: role,
+        isAdmin: role === 'Admin',
+      }
+      
+      setUser(userData)
+      setIsLoggedIn(true)
+      
+      localStorage.setItem('authToken', token)
+      localStorage.setItem('refreshToken', refreshToken)
+      localStorage.setItem('user', JSON.stringify(userData))
+    } catch (error) {
+      console.error('Login failed:', error)
+      throw new Error('Invalid email or password')
+    }
   }
 
   const signup = async (data: SignUpData) => {
-    // TODO: Replace with actual API call to your backend
-    // Example: const response = await api.post('/auth/signup', data)
-    
-    console.log('Sign up attempt:', data)
-    
-    // Simulate successful signup
-    // In real app, redirect to login or auto-login after signup
+    try {
+      const [firstName, ...lastNameParts] = data.fullName.split(' ')
+      const lastName = lastNameParts.join(' ')
+      
+      const response = await axios.post('/auth/register', {
+        email: data.email,
+        password: data.password,
+        firstName: firstName || undefined,
+        lastName: lastName || undefined
+      })
+      
+      const { token, refreshToken, role } = response.data
+      
+      const userData: User = {
+        name: data.email.split('@')[0],
+        email: data.email,
+        role: role,
+        isAdmin: role === 'Admin',
+      }
+      
+      setUser(userData)
+      setIsLoggedIn(true)
+      
+      localStorage.setItem('authToken', token)
+      localStorage.setItem('refreshToken', refreshToken)
+      localStorage.setItem('user', JSON.stringify(userData))
+      
+      console.log('Signup successful')
+    } catch (error: any) {
+      console.error('Signup failed:', error)
+      if (error.response?.status === 400) {
+        throw new Error('Email already exists')
+      }
+      throw new Error('Registration failed. Please try again.')
+    }
   }
 
   const logout = () => {
     setUser(null)
     setIsLoggedIn(false)
     localStorage.removeItem('authToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('user')
     console.log('User logged out')
   }
 

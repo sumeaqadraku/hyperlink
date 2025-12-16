@@ -1,4 +1,6 @@
+using Customer.Domain.Interfaces;
 using Customer.Infrastructure.Data;
+using Customer.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +21,8 @@ public static class DependencyInjection
                 ServerVersion.AutoDetect(connectionString)
             )
         );
+
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
 
         return services;
     }

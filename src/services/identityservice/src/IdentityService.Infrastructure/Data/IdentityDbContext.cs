@@ -10,7 +10,7 @@ public class IdentityDbContext : DbContext
     }
 
     public DbSet<User> Users { get; set; }
-    public DbSet<UserProfile> UserProfiles { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,22 +24,21 @@ public class IdentityDbContext : DbContext
             entity.Property(e => e.PasswordHash).IsRequired();
             entity.Property(e => e.Role).IsRequired().HasMaxLength(50);
             entity.Property(e => e.CreatedAt).IsRequired();
-
-            entity.HasOne(e => e.Profile)
-                .WithOne(e => e.User)
-                .HasForeignKey<UserProfile>(e => e.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<UserProfile>(entity =>
+        modelBuilder.Entity<RefreshToken>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.FirstName).HasMaxLength(100);
-            entity.Property(e => e.LastName).HasMaxLength(100);
-            entity.Property(e => e.PhoneNumber).HasMaxLength(20);
-            entity.Property(e => e.Address).HasMaxLength(500);
-            entity.Property(e => e.City).HasMaxLength(100);
-            entity.Property(e => e.Country).HasMaxLength(100);
+            entity.Property(e => e.Token).IsRequired().HasMaxLength(500);
+            entity.Property(e => e.CreatedByIp).HasMaxLength(50);
+            entity.Property(e => e.RevokedByIp).HasMaxLength(50);
+            entity.Property(e => e.ReplacedByToken).HasMaxLength(500);
+            entity.HasIndex(e => e.Token);
+            
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

@@ -18,10 +18,11 @@ builder.Services.AddDbContext<IdentityDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<UserProfileService>();
+builder.Services.AddScoped<UserManagementService>();
 
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "YourSuperSecretKeyForJWTThatIsAtLeast32CharactersLong!";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -84,42 +85,39 @@ app.MapPost("/auth/login", async (LoginRequest request, AuthService authService)
 })
 .WithName("Login");
 
-app.MapGet("/users/me", [Authorize] async (ClaimsPrincipal user, UserProfileService profileService) =>
+app.MapPost("/auth/refresh", async (RefreshTokenRequest request, AuthService authService) =>
 {
-    var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+    var result = await authService.RefreshTokenAsync(request.RefreshToken);
+    if (result == null)
     {
         return Results.Unauthorized();
     }
-
-    var profile = await profileService.GetProfileAsync(userId);
-    if (profile == null)
-    {
-        return Results.NotFound();
-    }
-
-    return Results.Ok(profile);
+    return Results.Ok(result);
 })
-.WithName("GetCurrentUser")
+.WithName("RefreshToken");
+
+app.MapPut("/admin/users/{userId}/role", [Authorize(Roles = "Admin")] async (Guid userId, UpdateRoleRequest request, UserManagementService userManagement) =>
+{
+    var result = await userManagement.UpdateUserRoleAsync(userId, request.Role);
+    if (!result)
+    {
+        return Results.BadRequest(new { message = "Invalid role or user not found. Valid roles: User, Admin" });
+    }
+    return Results.Ok(new { message = "Role updated successfully" });
+})
+.WithName("UpdateUserRole")
 .RequireAuthorization();
 
-app.MapPut("/users/me/profile", [Authorize] async (UpdateProfileRequest request, ClaimsPrincipal user, UserProfileService profileService) =>
+app.MapGet("/admin/users/{userId}", [Authorize(Roles = "Admin")] async (Guid userId, UserManagementService userManagement) =>
 {
-    var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+    var user = await userManagement.GetUserByIdAsync(userId);
+    if (user == null)
     {
-        return Results.Unauthorized();
+        return Results.NotFound(new { message = "User not found" });
     }
-
-    var profile = await profileService.UpdateProfileAsync(userId, request);
-    if (profile == null)
-    {
-        return Results.NotFound();
-    }
-
-    return Results.Ok(profile);
+    return Results.Ok(user);
 })
-.WithName("UpdateProfile")
+.WithName("GetUserById")
 .RequireAuthorization();
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "IdentityService" }))

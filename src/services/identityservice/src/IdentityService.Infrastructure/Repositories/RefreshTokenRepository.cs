@@ -1,0 +1,50 @@
+using IdentityService.Application.Interfaces;
+using IdentityService.Domain.Entities;
+using IdentityService.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace IdentityService.Infrastructure.Repositories;
+
+public class RefreshTokenRepository : IRefreshTokenRepository
+{
+    private readonly IdentityDbContext _context;
+
+    public RefreshTokenRepository(IdentityDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<RefreshToken?> GetByTokenAsync(string token)
+    {
+        return await _context.RefreshTokens
+            .Include(rt => rt.User)
+            .FirstOrDefaultAsync(rt => rt.Token == token);
+    }
+
+    public async Task AddAsync(RefreshToken refreshToken)
+    {
+        await _context.RefreshTokens.AddAsync(refreshToken);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(RefreshToken refreshToken)
+    {
+        _context.RefreshTokens.Update(refreshToken);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RevokeUserTokensAsync(Guid userId)
+    {
+        var tokens = await _context.RefreshTokens
+            .Where(rt => rt.UserId == userId && rt.IsActive)
+            .ToListAsync();
+
+        foreach (var token in tokens)
+        {
+            token.IsRevoked = true;
+            token.RevokedAt = DateTime.UtcNow;
+        }
+
+        await _context.SaveChangesAsync();
+    }
+}

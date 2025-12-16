@@ -12,6 +12,7 @@ public class Customer : BaseEntity, IAggregateRoot
     public string? Address { get; private set; }
     public string? City { get; private set; }
     public string? PostalCode { get; private set; }
+    public string? Country { get; private set; }
     public CustomerStatus Status { get; private set; }
 
     // Navigation properties
@@ -47,11 +48,20 @@ public class Customer : BaseEntity, IAggregateRoot
         MarkAsUpdated();
     }
 
-    public void UpdateAddress(string address, string city, string postalCode)
+    public void UpdateAddress(string address, string city, string postalCode, string? country = null)
     {
         Address = address;
         City = city;
         PostalCode = postalCode;
+        Country = country;
+        MarkAsUpdated();
+    }
+
+    public void UpdatePersonalInfo(string firstName, string lastName, DateTime dateOfBirth)
+    {
+        FirstName = firstName;
+        LastName = lastName;
+        DateOfBirth = dateOfBirth;
         MarkAsUpdated();
     }
 

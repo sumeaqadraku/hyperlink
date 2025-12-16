@@ -56,10 +56,8 @@ export default function SignUpPage() {
       newErrors.email = 'Please enter a valid email address'
     }
 
-    // Phone validation
-    if (!formData.phone) {
-      newErrors.phone = 'Phone number is required'
-    } else if (!/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(formData.phone)) {
+    // Phone validation (optional)
+    if (formData.phone && !/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/.test(formData.phone)) {
       newErrors.phone = 'Please enter a valid phone number'
     }
 
@@ -183,7 +181,7 @@ export default function SignUpPage() {
               {/* Phone Number Field */}
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
-                  Phone Number
+                  Phone Number (optional)
                 </label>
                 <div className="relative">
                   <PhoneIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
