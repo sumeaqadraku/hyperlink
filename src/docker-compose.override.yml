@@ -1,20 +1,6 @@
-version: '3.8'
-
 services:
-  hyperlink-api:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-    ports:
-      - "5000:80"
-    volumes:
-      - ./src/hyperlink.api:/app
-      - ~/.aspnet/https:/https:ro
-
   identity-api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "5001:80"
-    volumes:
-      - ./src/services/identityservice/src/identityservice.api:/app
-      - ~/.aspnet/https:/https:ro

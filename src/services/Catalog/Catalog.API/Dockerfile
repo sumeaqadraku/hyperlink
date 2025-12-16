@@ -3,18 +3,18 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy csproj files and restore dependencies
-COPY ["services/Catalog/Catalog.API/Catalog.API.csproj", "services/Catalog/Catalog.API/"]
-COPY ["services/Catalog/Catalog.Application/Catalog.Application.csproj", "services/Catalog/Catalog.Application/"]
-COPY ["services/Catalog/Catalog.Domain/Catalog.Domain.csproj", "services/Catalog/Catalog.Domain/"]
-COPY ["services/Catalog/Catalog.Infrastructure/Catalog.Infrastructure.csproj", "services/Catalog/Catalog.Infrastructure/"]
-COPY ["BuildingBlocks/SharedKernel/SharedKernel.csproj", "BuildingBlocks/SharedKernel/"]
-COPY ["BuildingBlocks/Common/Common.csproj", "BuildingBlocks/Common/"]
+COPY ["src/services/Catalog/Catalog.API/Catalog.API.csproj", "src/services/Catalog/Catalog.API/"]
+COPY ["src/services/Catalog/Catalog.Application/Catalog.Application.csproj", "src/services/Catalog/Catalog.Application/"]
+COPY ["src/services/Catalog/Catalog.Domain/Catalog.Domain.csproj", "src/services/Catalog/Catalog.Domain/"]
+COPY ["src/services/Catalog/Catalog.Infrastructure/Catalog.Infrastructure.csproj", "src/services/Catalog/Catalog.Infrastructure/"]
+COPY ["src/BuildingBlocks/SharedKernel/SharedKernel.csproj", "src/BuildingBlocks/SharedKernel/"]
+COPY ["src/BuildingBlocks/Common/Common.csproj", "src/BuildingBlocks/Common/"]
 
-RUN dotnet restore "services/Catalog/Catalog.API/Catalog.API.csproj"
+RUN dotnet restore "src/services/Catalog/Catalog.API/Catalog.API.csproj"
 
 # Copy everything else and build
 COPY . .
-WORKDIR "/src/services/Catalog/Catalog.API"
+WORKDIR "/src/src/services/Catalog/Catalog.API"
 RUN dotnet build "Catalog.API.csproj" -c Release -o /app/build
 
 # Publish stage

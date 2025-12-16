@@ -1,6 +1,8 @@
 using Catalog.API.Middleware;
 using Catalog.Application;
 using Catalog.Infrastructure;
+using Catalog.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,21 +51,22 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
 
-// Seed database with sample data if empty
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
         var db = services.GetRequiredService<CatalogDbContext>();
+        await db.Database.MigrateAsync();
+        
         Catalog.Infrastructure.Data.Seed.CatalogDbSeeder.Seed(db);
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation("Catalog database seeded (if it was empty).");
+        logger.LogInformation("Catalog database migrated and seeded successfully.");
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
     }
 }
 

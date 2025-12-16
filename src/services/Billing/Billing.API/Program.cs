@@ -1,5 +1,6 @@
 using Billing.Application;
 using Billing.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,21 +26,23 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-// Run DB seeding
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
+        var dbContext = services.GetRequiredService<Billing.Infrastructure.Data.BillingDbContext>();
+        await dbContext.Database.MigrateAsync();
+        
         var seeder = services.GetRequiredService<Billing.Infrastructure.Data.Seed.BillingDbSeeder>();
         await seeder.SeedAsync();
         var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("BillingDbSeeder");
-        logger.LogInformation("Billing DB seeded successfully");
+        logger.LogInformation("Billing DB migrated and seeded successfully");
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger("BillingDbSeeder");
-        logger.LogError(ex, "An error occurred while seeding the Billing database.");
+        logger.LogError(ex, "An error occurred while migrating or seeding the Billing database.");
     }
 }
 

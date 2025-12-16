@@ -3,18 +3,18 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy csproj files and restore dependencies
-COPY ["services/Customer/Customer.API/Customer.API.csproj", "services/Customer/Customer.API/"]
-COPY ["services/Customer/Customer.Application/Customer.Application.csproj", "services/Customer/Customer.Application/"]
-COPY ["services/Customer/Customer.Domain/Customer.Domain.csproj", "services/Customer/Customer.Domain/"]
-COPY ["services/Customer/Customer.Infrastructure/Customer.Infrastructure.csproj", "services/Customer/Customer.Infrastructure/"]
-COPY ["BuildingBlocks/SharedKernel/SharedKernel.csproj", "BuildingBlocks/SharedKernel/"]
-COPY ["BuildingBlocks/Common/Common.csproj", "BuildingBlocks/Common/"]
+COPY ["src/services/Customer/Customer.API/Customer.API.csproj", "src/services/Customer/Customer.API/"]
+COPY ["src/services/Customer/Customer.Application/Customer.Application.csproj", "src/services/Customer/Customer.Application/"]
+COPY ["src/services/Customer/Customer.Domain/Customer.Domain.csproj", "src/services/Customer/Customer.Domain/"]
+COPY ["src/services/Customer/Customer.Infrastructure/Customer.Infrastructure.csproj", "src/services/Customer/Customer.Infrastructure/"]
+COPY ["src/BuildingBlocks/SharedKernel/SharedKernel.csproj", "src/BuildingBlocks/SharedKernel/"]
+COPY ["src/BuildingBlocks/Common/Common.csproj", "src/BuildingBlocks/Common/"]
 
-RUN dotnet restore "services/Customer/Customer.API/Customer.API.csproj"
+RUN dotnet restore "src/services/Customer/Customer.API/Customer.API.csproj"
 
 # Copy everything else and build
 COPY . .
-WORKDIR "/src/services/Customer/Customer.API"
+WORKDIR "/src/src/services/Customer/Customer.API"
 RUN dotnet build "Customer.API.csproj" -c Release -o /app/build
 
 # Publish stage

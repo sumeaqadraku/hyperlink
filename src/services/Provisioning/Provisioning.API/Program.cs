@@ -1,5 +1,6 @@
 using Provisioning.Application;
 using Provisioning.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +25,23 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dbContext = services.GetRequiredService<Provisioning.Infrastructure.Data.ProvisioningDbContext>();
+        await dbContext.Database.MigrateAsync();
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Provisioning database migrated successfully.");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the Provisioning database.");
+    }
+}
 
 if (app.Environment.IsDevelopment())
 {

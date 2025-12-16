@@ -109,29 +109,14 @@ services:
       retries: 5
 
   # ============================================
-  # Existing API Services
+  # API Services
   # ============================================
-
-  hyperlink-api:
-    image: ${DOCKER_REGISTRY-}hyperlinkapi
-    build:
-      context: .
-      dockerfile: src/hyperlink.api/Dockerfile
-    container_name: hyperlink-api
-    restart: unless-stopped
-    ports:
-      - "5000:80"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-    networks:
-      - telecom-network
 
   identity-api:
     image: ${DOCKER_REGISTRY-}identityapi
     build:
-      context: .
-      dockerfile: Services/identityservice/src/identityservice.api/Dockerfile
+      context: ..
+      dockerfile: src/services/identityservice/src/identityservice.api/Dockerfile
     container_name: identity-api
     restart: unless-stopped
     ports:
@@ -141,7 +126,105 @@ services:
       - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__DefaultConnection=Server=identity-db;Port=3306;Database=identitydb;User=identityuser;Password=IdentityPass123!;
     depends_on:
-      - identity-db
+      identity-db:
+        condition: service_healthy
+    networks:
+      - telecom-network
+
+  catalog-api:
+    image: ${DOCKER_REGISTRY-}catalogapi
+    build:
+      context: ..
+      dockerfile: src/services/Catalog/Catalog.API/Dockerfile
+    container_name: catalog-api
+    restart: unless-stopped
+    ports:
+      - "5002:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=catalog-db;Port=3306;Database=catalogdb;User=cataloguser;Password=CatalogPass123!;
+    depends_on:
+      catalog-db:
+        condition: service_healthy
+    networks:
+      - telecom-network
+
+  billing-api:
+    image: ${DOCKER_REGISTRY-}billingapi
+    build:
+      context: ..
+      dockerfile: src/services/Billing/Billing.API/Dockerfile
+    container_name: billing-api
+    restart: unless-stopped
+    ports:
+      - "5003:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=billing-db;Port=3306;Database=billingdb;User=billinguser;Password=BillingPass123!;
+    depends_on:
+      billing-db:
+        condition: service_healthy
+    networks:
+      - telecom-network
+
+  customer-api:
+    image: ${DOCKER_REGISTRY-}customerapi
+    build:
+      context: ..
+      dockerfile: src/services/Customer/Customer.API/Dockerfile
+    container_name: customer-api
+    restart: unless-stopped
+    ports:
+      - "5004:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=customer-db;Port=3306;Database=customerdb;User=customeruser;Password=CustomerPass123!;
+    depends_on:
+      customer-db:
+        condition: service_healthy
+    networks:
+      - telecom-network
+
+  provisioning-api:
+    image: ${DOCKER_REGISTRY-}provisioningapi
+    build:
+      context: ..
+      dockerfile: src/services/Provisioning/Provisioning.API/Dockerfile
+    container_name: provisioning-api
+    restart: unless-stopped
+    ports:
+      - "5005:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=provisioning-db;Port=3306;Database=provisioningdb;User=provisioninguser;Password=ProvisioningPass123!;
+    depends_on:
+      provisioning-db:
+        condition: service_healthy
+    networks:
+      - telecom-network
+
+  gateway-api:
+    image: ${DOCKER_REGISTRY-}gatewayapi
+    build:
+      context: ..
+      dockerfile: src/services/Gateway/Gateway.API/Dockerfile
+    container_name: gateway-api
+    restart: unless-stopped
+    ports:
+      - "5006:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+    depends_on:
+      - catalog-api
+      - billing-api
+      - customer-api
+      - provisioning-api
+      - identity-api
     networks:
       - telecom-network
 

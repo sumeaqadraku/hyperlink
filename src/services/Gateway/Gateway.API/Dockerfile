@@ -3,15 +3,15 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy csproj and restore dependencies
-COPY ["services/Gateway/Gateway.API/Gateway.API.csproj", "services/Gateway/Gateway.API/"]
-COPY ["BuildingBlocks/SharedKernel/SharedKernel.csproj", "BuildingBlocks/SharedKernel/"]
-COPY ["BuildingBlocks/Common/Common.csproj", "BuildingBlocks/Common/"]
+COPY ["src/services/Gateway/Gateway.API/Gateway.API.csproj", "src/services/Gateway/Gateway.API/"]
+COPY ["src/BuildingBlocks/SharedKernel/SharedKernel.csproj", "src/BuildingBlocks/SharedKernel/"]
+COPY ["src/BuildingBlocks/Common/Common.csproj", "src/BuildingBlocks/Common/"]
 
-RUN dotnet restore "services/Gateway/Gateway.API/Gateway.API.csproj"
+RUN dotnet restore "src/services/Gateway/Gateway.API/Gateway.API.csproj"
 
 # Copy everything else and build
 COPY . .
-WORKDIR "/src/services/Gateway/Gateway.API"
+WORKDIR "/src/src/services/Gateway/Gateway.API"
 RUN dotnet build "Gateway.API.csproj" -c Release -o /app/build
 
 # Publish stage
