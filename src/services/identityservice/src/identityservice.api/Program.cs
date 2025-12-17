@@ -57,6 +57,17 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
     await dbContext.Database.MigrateAsync();
+
+    // Ensure the specified user has Admin role
+    var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+    const string adminEmail = "loralora@gmail.com";
+    var adminUser = await userRepository.GetByEmailAsync(adminEmail);
+    if (adminUser != null && !string.Equals(adminUser.Role, "Admin", StringComparison.OrdinalIgnoreCase))
+    {
+        adminUser.Role = "Admin";
+        adminUser.UpdatedAt = DateTime.UtcNow;
+        await userRepository.UpdateAsync(adminUser);
+    }
 }
 
 app.UseCors();
