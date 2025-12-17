@@ -8,6 +8,8 @@ import {
   Bell,
   Phone,
   Repeat,
+  FileText,
+  Users,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { UserProfileDropdown } from '@/components/ui/UserProfileDropdown'
@@ -16,6 +18,8 @@ import { useAuth } from '@/contexts/AuthContext'
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Catalog', href: '/dashboard/catalog', icon: Package },
+  { name: 'Customers', href: '/dashboard/customers', icon: Users },
+  { name: 'Offer Details', href: '/dashboard/offer-details', icon: FileText },
   { name: 'Subscriptions', href: '/dashboard/subscriptions', icon: Repeat },
   { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
   { name: 'Usage', href: '/dashboard/usage', icon: Activity },

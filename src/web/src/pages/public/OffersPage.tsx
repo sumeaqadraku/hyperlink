@@ -106,9 +106,9 @@ export default function OffersPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button asChild className="w-full">
-                <Link to={`/offers/${product.id}`}>View Details</Link>
-              </Button>
+              <Link to={`/offers/${product.id}`} className="w-full">
+                <Button className="w-full">View Details</Button>
+              </Link>
             </CardFooter>
           </Card>
         ))}

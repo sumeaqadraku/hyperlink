@@ -12,6 +12,7 @@ public class CatalogDbContext : DbContext
 
     public DbSet<Product> Products => Set<Product>();
     public DbSet<TariffPlan> TariffPlans => Set<TariffPlan>();
+    public DbSet<OfferDetails> OfferDetails => Set<OfferDetails>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -20,5 +21,6 @@ public class CatalogDbContext : DbContext
         // Apply configurations
         modelBuilder.ApplyConfiguration(new ProductConfiguration());
         modelBuilder.ApplyConfiguration(new TariffPlanConfiguration());
+        modelBuilder.ApplyConfiguration(new OfferDetailsConfiguration());
     }
 }

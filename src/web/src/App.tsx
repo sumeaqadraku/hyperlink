@@ -8,6 +8,8 @@ import HomePage from './pages/public/HomePage'
 import OffersPage from './pages/public/OffersPage'
 import OfferDetailsPage from './pages/public/OfferDetailsPage'
 import ProfilePage from './pages/ProfilePage'
+import MyProfile from './pages/profile/MyProfile'
+import MySubscriptions from './pages/profile/MySubscriptions'
 
 // Auth Pages
 import LoginPage from './pages/auth/LoginPage'
@@ -16,7 +18,9 @@ import SignUpPage from './pages/auth/SignUpPage'
 // Dashboard Pages
 import DashboardOverview from './pages/dashboard/DashboardOverview'
 import CatalogManagement from './pages/dashboard/CatalogManagement'
+import OfferDetailsManagement from './pages/dashboard/OfferDetailsManagement'
 import SubscriptionsPage from './pages/dashboard/SubscriptionsPage'
+import CustomerManagement from './pages/dashboard/CustomerManagement'
 import BillingPage from './pages/dashboard/BillingPage'
 import InvoiceDetailsPage from './pages/dashboard/InvoiceDetailsPage'
 import UsagePage from './pages/dashboard/UsagePage'
@@ -36,12 +40,16 @@ function App() {
             <Route path="offers" element={<OffersPage />} />
             <Route path="offers/:id" element={<OfferDetailsPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="profile/my" element={<MyProfile />} />
+            <Route path="profile/subscriptions" element={<MySubscriptions />} />
           </Route>
 
           {/* Dashboard Routes */}
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardOverview />} />
             <Route path="catalog" element={<CatalogManagement />} />
+            <Route path="customers" element={<CustomerManagement />} />
+            <Route path="offer-details" element={<OfferDetailsManagement />} />
             <Route path="subscriptions" element={<SubscriptionsPage />} />
             <Route path="billing" element={<BillingPage />} />
             <Route path="billing/invoice/:id" element={<InvoiceDetailsPage />} />

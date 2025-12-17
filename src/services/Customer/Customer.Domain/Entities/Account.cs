@@ -12,6 +12,7 @@ public class Account : BaseEntity
 
     // Navigation
     public Customer? Customer { get; private set; }
+    public ICollection<Subscription> Subscriptions { get; private set; } = new List<Subscription>();
 
     private Account() { }
 

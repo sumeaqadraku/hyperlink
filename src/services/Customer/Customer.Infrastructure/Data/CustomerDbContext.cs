@@ -12,6 +12,7 @@ public class CustomerDbContext : DbContext
     public DbSet<Domain.Entities.Customer> Customers => Set<Domain.Entities.Customer>();
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<Contract> Contracts => Set<Contract>();
+    public DbSet<Subscription> Subscriptions => Set<Subscription>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,12 +32,21 @@ public class CustomerDbContext : DbContext
         {
             entity.ToTable("Accounts");
             entity.HasKey(e => e.Id);
+            entity.HasMany(a => a.Subscriptions).WithOne(s => s.Account!).HasForeignKey(s => s.AccountId);
         });
 
         modelBuilder.Entity<Contract>(entity =>
         {
             entity.ToTable("Contracts");
             entity.HasKey(e => e.Id);
+        });
+
+        modelBuilder.Entity<Subscription>(entity =>
+        {
+            entity.ToTable("Subscriptions");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.SubscriptionNumber).IsRequired();
+            entity.HasIndex(e => e.SubscriptionNumber).IsUnique();
         });
     }
 }

@@ -17,5 +17,10 @@ public class MappingProfile : Profile
         CreateMap<TariffPlan, TariffPlanDto>();
         CreateMap<CreateTariffPlanDto, TariffPlan>();
         CreateMap<UpdateTariffPlanDto, TariffPlan>();
+
+        // OfferDetails mappings
+        CreateMap<OfferDetails, OfferDetailsDto>();
+        CreateMap<CreateOfferDetailsDto, OfferDetails>();
+        CreateMap<UpdateOfferDetailsDto, OfferDetails>();
     }
 }

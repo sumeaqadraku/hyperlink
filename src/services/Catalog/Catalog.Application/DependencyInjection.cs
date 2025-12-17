@@ -18,6 +18,7 @@ public static class DependencyInjection
         // Register Application Services
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<ITariffPlanService, TariffPlanService>();
+        services.AddScoped<IOfferDetailsService, OfferDetailsService>();
 
         return services;
     }

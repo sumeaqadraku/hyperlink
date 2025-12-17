@@ -1,4 +1,5 @@
 using Catalog.Domain.Interfaces;
+using Catalog.Domain.Repositories;
 using Catalog.Infrastructure.Data;
 using Catalog.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,7 @@ public static class DependencyInjection
         // Register Repositories
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ITariffPlanRepository, TariffPlanRepository>();
+        services.AddScoped<IOfferDetailsRepository, OfferDetailsRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

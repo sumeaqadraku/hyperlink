@@ -11,6 +11,8 @@ public static class DependencyInjection
         services.AddAutoMapper(typeof(DependencyInjection).Assembly);
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
         services.AddScoped<CustomerProfileService>();
+        services.AddScoped<AccountService>();
+        services.AddScoped<SubscriptionService>();
         return services;
     }
 }

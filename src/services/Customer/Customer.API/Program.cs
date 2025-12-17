@@ -77,7 +77,7 @@ app.MapPost("/customers", async (CreateCustomerRequest request, CustomerProfileS
 })
 .WithName("CreateCustomer");
 
-app.MapGet("/customers/me", [Authorize] async (ClaimsPrincipal user, CustomerProfileService profileService) =>
+app.MapGet("/api/customers/me", [Authorize] async (ClaimsPrincipal user, CustomerProfileService profileService) =>
 {
     var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
@@ -96,7 +96,7 @@ app.MapGet("/customers/me", [Authorize] async (ClaimsPrincipal user, CustomerPro
 .WithName("GetMyProfile")
 .RequireAuthorization();
 
-app.MapPut("/customers/me", [Authorize] async (UpdateCustomerProfileRequest request, ClaimsPrincipal user, CustomerProfileService profileService) =>
+app.MapPut("/api/customers/me", [Authorize] async (UpdateCustomerProfileRequest request, ClaimsPrincipal user, CustomerProfileService profileService) =>
 {
     var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
