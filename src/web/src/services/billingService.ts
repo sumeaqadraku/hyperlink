@@ -27,6 +27,14 @@ export interface Payment {
   status: string
 }
 
+export interface Balance {
+  currentBalance: number
+  currency: string
+  lastUpdated: string
+  dueDate?: string
+  pastDueAmount?: number
+}
+
 export const billingService = {
   getInvoices: async () => {
     const response = await apiClient.get<Invoice[]>('/billing/invoices')
@@ -44,7 +52,7 @@ export const billingService = {
   },
 
   getBalance: async () => {
-    const response = await apiClient.get<{ balance: number }>('/billing/balance')
+    const response = await apiClient.get<Balance>('/billing/balance')
     return response.data
-  },
+  }
 }

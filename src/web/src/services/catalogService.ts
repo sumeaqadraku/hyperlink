@@ -1,6 +1,6 @@
 import { apiClient } from './api'
 
-export interface Offer {
+export interface Product {
   id: string
   name: string
   description: string
@@ -9,31 +9,38 @@ export interface Offer {
   features: string[]
   speed?: string
   data?: string
+  isActive: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export const catalogService = {
-  getOffers: async (serviceType?: string) => {
-    const params = serviceType ? { serviceType } : {}
-    const response = await apiClient.get<Offer[]>('/catalog/offers', { params })
+  getProducts: async (params?: { isActive?: boolean, serviceType?: string }) => {
+    const response = await apiClient.get<Product[]>('/catalog/products', { params })
     return response.data
   },
 
-  getOfferById: async (id: string) => {
-    const response = await apiClient.get<Offer>(`/catalog/offers/${id}`)
+  getActiveProducts: async () => {
+    const response = await apiClient.get<Product[]>('/catalog/products/active')
     return response.data
   },
 
-  createOffer: async (offer: Omit<Offer, 'id'>) => {
-    const response = await apiClient.post<Offer>('/catalog/offers', offer)
+  getProductById: async (id: string) => {
+    const response = await apiClient.get<Product>(`/catalog/products/${id}`)
     return response.data
   },
 
-  updateOffer: async (id: string, offer: Partial<Offer>) => {
-    const response = await apiClient.put<Offer>(`/catalog/offers/${id}`, offer)
+  createProduct: async (product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const response = await apiClient.post<Product>('/catalog/products', product)
     return response.data
   },
 
-  deleteOffer: async (id: string) => {
-    await apiClient.delete(`/catalog/offers/${id}`)
+  updateProduct: async (id: string, product: Partial<Omit<Product, 'id' | 'createdAt' | 'updatedAt'>>) => {
+    const response = await apiClient.put<Product>(`/catalog/products/${id}`, product)
+    return response.data
   },
+
+  deleteProduct: async (id: string) => {
+    await apiClient.delete(`/catalog/products/${id}`)
+  }
 }
