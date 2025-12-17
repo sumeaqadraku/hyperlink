@@ -3,16 +3,16 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy csproj files and restore dependencies
-COPY ["src/services/identityservice/src/identityservice.api/identityservice.api.csproj", "src/services/identityservice/src/identityservice.api/"]
-COPY ["src/services/identityservice/src/IdentityService.Application/IdentityService.Application.csproj", "src/services/identityservice/src/IdentityService.Application/"]
-COPY ["src/services/identityservice/src/IdentityService.Domain/IdentityService.Domain.csproj", "src/services/identityservice/src/IdentityService.Domain/"]
-COPY ["src/services/identityservice/src/IdentityService.Infrastructure/IdentityService.Infrastructure.csproj", "src/services/identityservice/src/IdentityService.Infrastructure/"]
+COPY ["services/identityservice/src/identityservice.api/identityservice.api.csproj", "services/identityservice/src/identityservice.api/"]
+COPY ["services/identityservice/src/IdentityService.Application/IdentityService.Application.csproj", "services/identityservice/src/IdentityService.Application/"]
+COPY ["services/identityservice/src/IdentityService.Domain/IdentityService.Domain.csproj", "services/identityservice/src/IdentityService.Domain/"]
+COPY ["services/identityservice/src/IdentityService.Infrastructure/IdentityService.Infrastructure.csproj", "services/identityservice/src/IdentityService.Infrastructure/"]
 
-RUN dotnet restore "src/services/identityservice/src/identityservice.api/identityservice.api.csproj"
+RUN dotnet restore "services/identityservice/src/identityservice.api/identityservice.api.csproj"
 
 # Copy everything else and build
 COPY . .
-WORKDIR "/src/src/services/identityservice/src/identityservice.api"
+WORKDIR "/src/services/identityservice/src/identityservice.api"
 RUN dotnet build "identityservice.api.csproj" -c Release -o /app/build
 
 # Publish stage

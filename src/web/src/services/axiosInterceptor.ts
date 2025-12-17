@@ -36,21 +36,15 @@ export const setupAxiosInterceptors = () => {
         originalRequest._retry = true
         isRefreshing = true
 
-        const refreshToken = localStorage.getItem('refreshToken')
-
-        if (!refreshToken) {
-          isRefreshing = false
-          localStorage.clear()
-          window.location.href = '/login'
-          return Promise.reject(error)
-        }
-
         try {
-          const response = await axios.post('/auth/refresh', { refreshToken })
-          const { token, refreshToken: newRefreshToken } = response.data
+          // Refresh using HttpOnly cookie - no need to send refreshToken in body
+          const response = await axios.post('/auth/refresh', {}, { 
+            withCredentials: true // Important: sends cookies
+          })
+          const { token } = response.data
 
+          // Store new access token
           localStorage.setItem('authToken', token)
-          localStorage.setItem('refreshToken', newRefreshToken)
           
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + token
           originalRequest.headers['Authorization'] = 'Bearer ' + token
@@ -78,6 +72,8 @@ export const setupAxiosInterceptors = () => {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`
       }
+      // Always include credentials for cookies
+      config.withCredentials = true
       return config
     },
     (error) => {
