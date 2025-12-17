@@ -1,24 +1,23 @@
-import { useState, useEffect } from 'react'
-import { catalogService, Offer } from '@/services/catalogService'
+import { useState, useEffect, useCallback } from 'react'
+import { catalogService, Product } from '@/services/catalogService'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table'
 import { Badge } from '@/components/ui/Badge'
 import { Plus, Edit, Trash2 } from 'lucide-react'
 import { formatCurrency } from '@/lib/utils'
+import ProductDialog from '@/components/catalog/ProductDialog'
 
 export default function CatalogManagement() {
-  const [offers, setOffers] = useState<Offer[]>([])
+  const [offers, setOffers] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<Product | undefined>(undefined)
 
-  useEffect(() => {
-    loadOffers()
-  }, [])
-
-  const loadOffers = async () => {
+  const loadOffers = useCallback(async () => {
     try {
       setLoading(true)
-      const data = await catalogService.getOffers()
+      const data = await catalogService.getProducts()
       setOffers(data)
     } catch (error) {
       console.error('Failed to load offers:', error)
@@ -27,9 +26,13 @@ export default function CatalogManagement() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const getMockOffers = (): Offer[] => [
+  useEffect(() => {
+    loadOffers()
+  }, [loadOffers])
+
+  const getMockOffers = (): Product[] => [
     {
       id: '1',
       name: 'Internet Starter',
@@ -38,6 +41,8 @@ export default function CatalogManagement() {
       serviceType: 'Internet',
       speed: '100 Mbps',
       features: ['Unlimited data', 'Free modem'],
+      isActive: true,
+      createdAt: new Date().toISOString(),
     },
     {
       id: '2',
@@ -47,6 +52,8 @@ export default function CatalogManagement() {
       serviceType: 'Internet',
       speed: '500 Mbps',
       features: ['Unlimited data', 'Free modem', 'Priority support'],
+      isActive: true,
+      createdAt: new Date().toISOString(),
     },
     {
       id: '3',
@@ -56,6 +63,8 @@ export default function CatalogManagement() {
       serviceType: 'Mobile',
       data: '10GB',
       features: ['Unlimited calls', '5G network'],
+      isActive: true,
+      createdAt: new Date().toISOString(),
     },
     {
       id: '4',
@@ -64,18 +73,39 @@ export default function CatalogManagement() {
       price: 49.99,
       serviceType: 'TV',
       features: ['200+ channels', '4K streaming'],
+      isActive: true,
+      createdAt: new Date().toISOString(),
     },
   ]
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this offer?')) {
       try {
-        await catalogService.deleteOffer(id)
+        await catalogService.deleteProduct(id)
         loadOffers()
       } catch (error) {
         console.error('Failed to delete offer:', error)
       }
     }
+  }
+
+  const handleCreate = () => {
+    setEditingProduct(undefined)
+    setDialogOpen(true)
+  }
+
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product)
+    setDialogOpen(true)
+  }
+
+  const handleSave = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'> & { productCode: string }) => {
+    if (editingProduct) {
+      await catalogService.updateProduct(editingProduct.id, productData)
+    } else {
+      await catalogService.createProduct(productData)
+    }
+    loadOffers()
   }
 
   const getServiceTypeBadge = (type: string) => {
@@ -94,7 +124,7 @@ export default function CatalogManagement() {
           <h1 className="text-3xl font-bold text-gray-900">Catalog Management</h1>
           <p className="text-gray-600">Manage your service offers and plans</p>
         </div>
-        <Button>
+        <Button onClick={handleCreate}>
           <Plus className="h-4 w-4 mr-2" />
           Create Offer
         </Button>
@@ -133,7 +163,7 @@ export default function CatalogManagement() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => handleEdit(offer)}>
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
@@ -163,6 +193,13 @@ export default function CatalogManagement() {
           </p>
         </CardContent>
       </Card>
+
+      <ProductDialog
+        product={editingProduct}
+        isOpen={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onSave={handleSave}
+      />
     </div>
   )
 }

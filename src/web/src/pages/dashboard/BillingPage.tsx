@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { billingService, Invoice, Payment } from '@/services/billingService'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -14,21 +14,23 @@ export default function BillingPage() {
   const [balance, setBalance] = useState(0)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    loadBillingData()
-  }, [])
-
-  const loadBillingData = async () => {
+  const loadBillingData = useCallback(async () => {
     try {
       setLoading(true)
-      const [invoicesData, paymentsData, balanceData] = await Promise.all([
+      const [invoicesData, balanceData] = await Promise.all([
         billingService.getInvoices(),
-        billingService.getPayments(),
         billingService.getBalance(),
       ])
       setInvoices(invoicesData)
-      setPayments(paymentsData)
-      setBalance(balanceData.balance)
+      // Optionally load payments for the most recent invoice to show history
+      if (invoicesData.length > 0) {
+        const latest = invoicesData[0]
+        const p = await billingService.getPaymentsByInvoiceId(latest.id)
+        setPayments(p)
+      } else {
+        setPayments([])
+      }
+      setBalance(balanceData.currentBalance)
     } catch (error) {
       console.error('Failed to load billing data:', error)
       // Use mock data for demo
@@ -38,36 +40,44 @@ export default function BillingPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    loadBillingData()
+  }, [loadBillingData])
 
   const getMockInvoices = (): Invoice[] => [
     {
       id: '1',
       customerId: 'cust-1',
       invoiceNumber: 'INV-2024-1234',
-      amount: 149.97,
+      invoiceDate: '2024-12-01T00:00:00Z',
       dueDate: '2024-12-31T00:00:00Z',
-      status: 'Pending',
+      subTotal: 139.97,
+      taxAmount: 10.0,
+      totalAmount: 149.97,
+      status: 'Issued',
       items: [
         { description: 'Internet Pro', quantity: 1, unitPrice: 59.99, total: 59.99 },
         { description: 'Mobile Essential', quantity: 1, unitPrice: 29.99, total: 29.99 },
         { description: 'TV Premium', quantity: 1, unitPrice: 49.99, total: 49.99 },
       ],
-      createdAt: '2024-12-01T00:00:00Z',
     },
     {
       id: '2',
       customerId: 'cust-1',
       invoiceNumber: 'INV-2024-1233',
-      amount: 149.97,
+      invoiceDate: '2024-11-01T00:00:00Z',
       dueDate: '2024-11-30T00:00:00Z',
+      subTotal: 139.97,
+      taxAmount: 10.0,
+      totalAmount: 149.97,
       status: 'Paid',
       items: [
         { description: 'Internet Pro', quantity: 1, unitPrice: 59.99, total: 59.99 },
         { description: 'Mobile Essential', quantity: 1, unitPrice: 29.99, total: 29.99 },
         { description: 'TV Premium', quantity: 1, unitPrice: 49.99, total: 49.99 },
       ],
-      createdAt: '2024-11-01T00:00:00Z',
     },
   ]
 
@@ -77,7 +87,7 @@ export default function BillingPage() {
       invoiceId: '2',
       amount: 149.97,
       paymentDate: '2024-11-28T00:00:00Z',
-      paymentMethod: 'Credit Card',
+      method: 'CreditCard',
       status: 'Completed',
     },
   ]
@@ -85,7 +95,7 @@ export default function BillingPage() {
   const getStatusBadge = (status: Invoice['status']) => {
     const variants: { [key: string]: 'success' | 'secondary' | 'destructive' } = {
       Paid: 'success',
-      Pending: 'secondary',
+      Issued: 'secondary',
       Overdue: 'destructive',
     }
     return <Badge variant={variants[status] || 'secondary'}>{status}</Badge>
@@ -140,9 +150,9 @@ export default function BillingPage() {
                 {invoices.map((invoice) => (
                   <TableRow key={invoice.id}>
                     <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
-                    <TableCell>{formatDate(invoice.createdAt)}</TableCell>
+                    <TableCell>{formatDate(invoice.invoiceDate)}</TableCell>
                     <TableCell>{formatDate(invoice.dueDate)}</TableCell>
-                    <TableCell>{formatCurrency(invoice.amount)}</TableCell>
+                    <TableCell>{formatCurrency(invoice.totalAmount)}</TableCell>
                     <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
@@ -192,7 +202,7 @@ export default function BillingPage() {
                     <TableCell className="font-medium">
                       Invoice #{payment.invoiceId}
                     </TableCell>
-                    <TableCell>{payment.paymentMethod}</TableCell>
+                    <TableCell>{payment.method}</TableCell>
                     <TableCell>{formatCurrency(payment.amount)}</TableCell>
                     <TableCell>
                       <Badge variant="success">{payment.status}</Badge>
