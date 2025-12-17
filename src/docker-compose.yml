@@ -116,7 +116,7 @@ services:
     image: ${DOCKER_REGISTRY-}identityapi
     build:
       context: .
-      dockerfile: services/identityservice/src/identityservice.api/Dockerfile
+      dockerfile: services/identityservice/identityservice.api/Dockerfile
     container_name: identity-api
     restart: unless-stopped
     ports:
