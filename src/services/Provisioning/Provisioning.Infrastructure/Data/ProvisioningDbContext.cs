@@ -12,6 +12,8 @@ public class ProvisioningDbContext : DbContext
     public DbSet<ProvisioningRequest> ProvisioningRequests => Set<ProvisioningRequest>();
     public DbSet<SimCard> SimCards => Set<SimCard>();
     public DbSet<Device> Devices => Set<Device>();
+    public DbSet<Subscription> Subscriptions => Set<Subscription>();
+    public DbSet<UsageRecord> UsageRecords => Set<UsageRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +37,24 @@ public class ProvisioningDbContext : DbContext
             entity.ToTable("Devices");
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.IMEI).IsUnique();
+        });
+
+        modelBuilder.Entity<Subscription>(entity =>
+        {
+            entity.ToTable("Subscriptions");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.CustomerId);
+        });
+
+        modelBuilder.Entity<UsageRecord>(entity =>
+        {
+            entity.ToTable("UsageRecords");
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.SubscriptionId);
+            entity.Property(e => e.Unit).HasMaxLength(50).IsRequired();
+            entity.HasOne<Subscription>()
+                .WithMany()
+                .HasForeignKey(e => e.SubscriptionId);
         });
     }
 }

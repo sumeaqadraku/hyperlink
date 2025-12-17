@@ -13,6 +13,7 @@ public static class DependencyInjection
         // Application services
         services.AddScoped<Services.Interfaces.IInvoiceService, Services.Implementation.InvoiceService>();
         services.AddScoped<Services.Interfaces.IPaymentService, Services.Implementation.PaymentService>();
+        services.AddScoped<Services.Interfaces.IBalanceService, Services.Implementation.BalanceService>();
 
         return services;
     }

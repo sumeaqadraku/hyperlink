@@ -1,5 +1,6 @@
 using Provisioning.Application;
 using Provisioning.Infrastructure;
+using Provisioning.Infrastructure.Data.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -33,13 +34,15 @@ using (var scope = app.Services.CreateScope())
     {
         var dbContext = services.GetRequiredService<Provisioning.Infrastructure.Data.ProvisioningDbContext>();
         await dbContext.Database.MigrateAsync();
+        var seeder = services.GetRequiredService<ProvisioningDbSeeder>();
+        await seeder.SeedAsync();
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogInformation("Provisioning database migrated successfully.");
+        logger.LogInformation("Provisioning database migrated and seeded successfully.");
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the Provisioning database.");
+        logger.LogError(ex, "An error occurred while migrating or seeding the Provisioning database.");
     }
 }
 
