@@ -115,8 +115,8 @@ services:
   identity-api:
     image: ${DOCKER_REGISTRY-}identityapi
     build:
-      context: ..
-      dockerfile: src/services/identityservice/src/identityservice.api/Dockerfile
+      context: .
+      dockerfile: services/identityservice/src/identityservice.api/Dockerfile
     container_name: identity-api
     restart: unless-stopped
     ports:
@@ -134,8 +134,8 @@ services:
   catalog-api:
     image: ${DOCKER_REGISTRY-}catalogapi
     build:
-      context: ..
-      dockerfile: src/services/Catalog/Catalog.API/Dockerfile
+      context: .
+      dockerfile: services/Catalog/Catalog.API/Dockerfile
     container_name: catalog-api
     restart: unless-stopped
     ports:
@@ -153,8 +153,8 @@ services:
   billing-api:
     image: ${DOCKER_REGISTRY-}billingapi
     build:
-      context: ..
-      dockerfile: src/services/Billing/Billing.API/Dockerfile
+      context: .
+      dockerfile: services/Billing/Billing.API/Dockerfile
     container_name: billing-api
     restart: unless-stopped
     ports:
@@ -172,8 +172,8 @@ services:
   customer-api:
     image: ${DOCKER_REGISTRY-}customerapi
     build:
-      context: ..
-      dockerfile: src/services/Customer/Customer.API/Dockerfile
+      context: .
+      dockerfile: services/Customer/Customer.API/Dockerfile
     container_name: customer-api
     restart: unless-stopped
     ports:
@@ -191,8 +191,8 @@ services:
   provisioning-api:
     image: ${DOCKER_REGISTRY-}provisioningapi
     build:
-      context: ..
-      dockerfile: src/services/Provisioning/Provisioning.API/Dockerfile
+      context: .
+      dockerfile: services/Provisioning/Provisioning.API/Dockerfile
     container_name: provisioning-api
     restart: unless-stopped
     ports:
@@ -210,8 +210,8 @@ services:
   gateway-api:
     image: ${DOCKER_REGISTRY-}gatewayapi
     build:
-      context: ..
-      dockerfile: src/services/Gateway/Gateway.API/Dockerfile
+      context: .
+      dockerfile: services/Gateway/Gateway.API/Dockerfile
     container_name: gateway-api
     restart: unless-stopped
     ports:

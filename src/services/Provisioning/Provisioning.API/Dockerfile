@@ -3,18 +3,18 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy csproj files and restore dependencies
-COPY ["src/services/Provisioning/Provisioning.API/Provisioning.API.csproj", "src/services/Provisioning/Provisioning.API/"]
-COPY ["src/services/Provisioning/Provisioning.Application/Provisioning.Application.csproj", "src/services/Provisioning/Provisioning.Application/"]
-COPY ["src/services/Provisioning/Provisioning.Domain/Provisioning.Domain.csproj", "src/services/Provisioning/Provisioning.Domain/"]
-COPY ["src/services/Provisioning/Provisioning.Infrastructure/Provisioning.Infrastructure.csproj", "src/services/Provisioning/Provisioning.Infrastructure/"]
-COPY ["src/BuildingBlocks/SharedKernel/SharedKernel.csproj", "src/BuildingBlocks/SharedKernel/"]
-COPY ["src/BuildingBlocks/Common/Common.csproj", "src/BuildingBlocks/Common/"]
+COPY ["services/Provisioning/Provisioning.API/Provisioning.API.csproj", "services/Provisioning/Provisioning.API/"]
+COPY ["services/Provisioning/Provisioning.Application/Provisioning.Application.csproj", "services/Provisioning/Provisioning.Application/"]
+COPY ["services/Provisioning/Provisioning.Domain/Provisioning.Domain.csproj", "services/Provisioning/Provisioning.Domain/"]
+COPY ["services/Provisioning/Provisioning.Infrastructure/Provisioning.Infrastructure.csproj", "services/Provisioning/Provisioning.Infrastructure/"]
+COPY ["BuildingBlocks/SharedKernel/SharedKernel.csproj", "BuildingBlocks/SharedKernel/"]
+COPY ["BuildingBlocks/Common/Common.csproj", "BuildingBlocks/Common/"]
 
-RUN dotnet restore "src/services/Provisioning/Provisioning.API/Provisioning.API.csproj"
+RUN dotnet restore "services/Provisioning/Provisioning.API/Provisioning.API.csproj"
 
 # Copy everything else and build
 COPY . .
-WORKDIR "/src/src/services/Provisioning/Provisioning.API"
+WORKDIR "/src/services/Provisioning/Provisioning.API"
 RUN dotnet build "Provisioning.API.csproj" -c Release -o /app/build
 
 # Publish stage

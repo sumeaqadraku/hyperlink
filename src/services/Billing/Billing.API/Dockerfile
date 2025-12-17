@@ -3,18 +3,18 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
 # Copy csproj files and restore dependencies
-COPY ["src/services/Billing/Billing.API/Billing.API.csproj", "src/services/Billing/Billing.API/"]
-COPY ["src/services/Billing/Billing.Application/Billing.Application.csproj", "src/services/Billing/Billing.Application/"]
-COPY ["src/services/Billing/Billing.Domain/Billing.Domain.csproj", "src/services/Billing/Billing.Domain/"]
-COPY ["src/services/Billing/Billing.Infrastructure/Billing.Infrastructure.csproj", "src/services/Billing/Billing.Infrastructure/"]
-COPY ["src/BuildingBlocks/SharedKernel/SharedKernel.csproj", "src/BuildingBlocks/SharedKernel/"]
-COPY ["src/BuildingBlocks/Common/Common.csproj", "src/BuildingBlocks/Common/"]
+COPY ["services/Billing/Billing.API/Billing.API.csproj", "services/Billing/Billing.API/"]
+COPY ["services/Billing/Billing.Application/Billing.Application.csproj", "services/Billing/Billing.Application/"]
+COPY ["services/Billing/Billing.Domain/Billing.Domain.csproj", "services/Billing/Billing.Domain/"]
+COPY ["services/Billing/Billing.Infrastructure/Billing.Infrastructure.csproj", "services/Billing/Billing.Infrastructure/"]
+COPY ["BuildingBlocks/SharedKernel/SharedKernel.csproj", "BuildingBlocks/SharedKernel/"]
+COPY ["BuildingBlocks/Common/Common.csproj", "BuildingBlocks/Common/"]
 
-RUN dotnet restore "src/services/Billing/Billing.API/Billing.API.csproj"
+RUN dotnet restore "services/Billing/Billing.API/Billing.API.csproj"
 
 # Copy everything else and build
 COPY . .
-WORKDIR "/src/src/services/Billing/Billing.API"
+WORKDIR "/src/services/Billing/Billing.API"
 RUN dotnet build "Billing.API.csproj" -c Release -o /app/build
 
 # Publish stage
