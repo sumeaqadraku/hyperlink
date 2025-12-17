@@ -1,0 +1,48 @@
+@identityservice.api_HostAddress = http://localhost:5078
+@token = 
+
+### Health Check
+GET {{identityservice.api_HostAddress}}/health
+Accept: application/json
+
+### Register New User
+POST {{identityservice.api_HostAddress}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password123!",
+  "firstName": "John",
+  "lastName": "Doe"
+}
+
+### Login
+POST {{identityservice.api_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password123!"
+}
+
+### Get Current User Profile (requires JWT token)
+GET {{identityservice.api_HostAddress}}/users/me
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Update User Profile (requires JWT token)
+PUT {{identityservice.api_HostAddress}}/users/me/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe Updated",
+  "phoneNumber": "+1234567890",
+  "dateOfBirth": "1990-01-15",
+  "address": "123 Main Street",
+  "city": "New York",
+  "country": "USA"
+}
+
+###
