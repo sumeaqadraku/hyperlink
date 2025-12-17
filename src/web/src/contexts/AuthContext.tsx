@@ -41,9 +41,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post('/auth/login', { email, password })
+      const response = await axios.post('/auth/login', 
+        { email, password },
+        { withCredentials: true } // Important: sends and receives cookies
+      )
       
-      const { token, refreshToken, role } = response.data
+      const { token, role } = response.data
       
       const userData: User = {
         name: email.split('@')[0],
@@ -55,8 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(userData)
       setIsLoggedIn(true)
       
+      // Store access token in localStorage (refreshToken is now in HttpOnly cookie)
       localStorage.setItem('authToken', token)
-      localStorage.setItem('refreshToken', refreshToken)
       localStorage.setItem('user', JSON.stringify(userData))
     } catch (error) {
       console.error('Login failed:', error)
@@ -69,14 +72,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const [firstName, ...lastNameParts] = data.fullName.split(' ')
       const lastName = lastNameParts.join(' ')
       
-      const response = await axios.post('/auth/register', {
-        email: data.email,
-        password: data.password,
-        firstName: firstName || undefined,
-        lastName: lastName || undefined
-      })
+      const response = await axios.post('/auth/register', 
+        {
+          email: data.email,
+          password: data.password,
+          firstName: firstName || undefined,
+          lastName: lastName || undefined
+        },
+        { withCredentials: true } // Important: sends and receives cookies
+      )
       
-      const { token, refreshToken, role } = response.data
+      const { token, role } = response.data
       
       const userData: User = {
         name: data.email.split('@')[0],
@@ -88,8 +94,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(userData)
       setIsLoggedIn(true)
       
+      // Store access token in localStorage (refreshToken is now in HttpOnly cookie)
       localStorage.setItem('authToken', token)
-      localStorage.setItem('refreshToken', refreshToken)
       localStorage.setItem('user', JSON.stringify(userData))
       
       console.log('Signup successful')
@@ -102,13 +108,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const logout = () => {
-    setUser(null)
-    setIsLoggedIn(false)
-    localStorage.removeItem('authToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
-    console.log('User logged out')
+  const logout = async () => {
+    try {
+      // Call backend to revoke refresh token and clear cookie
+      await axios.post('/auth/logout', {}, { withCredentials: true })
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      // Clear local state regardless of backend response
+      setUser(null)
+      setIsLoggedIn(false)
+      localStorage.removeItem('authToken')
+      localStorage.removeItem('user')
+      console.log('User logged out')
+    }
   }
 
   return (

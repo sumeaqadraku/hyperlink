@@ -45,9 +45,10 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:5000")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -74,38 +75,116 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapPost("/auth/register", async (RegisterRequest request, AuthService authService) =>
+app.MapPost("/auth/register", async (RegisterRequest request, AuthService authService, HttpContext httpContext) =>
 {
-    var result = await authService.RegisterAsync(request);
+    var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+    var result = await authService.RegisterAsync(request, ipAddress);
     if (result == null)
     {
         return Results.BadRequest(new { message = "Email already exists" });
     }
-    return Results.Ok(result);
+    
+    // Set refresh token as HttpOnly cookie
+    httpContext.Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = false, // Set to true in production with HTTPS
+        SameSite = SameSiteMode.Lax,
+        Expires = DateTimeOffset.UtcNow.AddDays(7)
+    });
+    
+    // Return only access token (not refresh token)
+    return Results.Ok(new 
+    {
+        token = result.Token,
+        email = result.Email,
+        role = result.Role
+    });
 })
 .WithName("Register");
 
-app.MapPost("/auth/login", async (LoginRequest request, AuthService authService) =>
+app.MapPost("/auth/login", async (LoginRequest request, AuthService authService, HttpContext httpContext) =>
 {
-    var result = await authService.LoginAsync(request);
+    var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+    var result = await authService.LoginAsync(request, ipAddress);
     if (result == null)
     {
         return Results.Unauthorized();
     }
-    return Results.Ok(result);
+    
+    // Set refresh token as HttpOnly cookie
+    httpContext.Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = false, // Set to true in production with HTTPS
+        SameSite = SameSiteMode.Lax,
+        Expires = DateTimeOffset.UtcNow.AddDays(7)
+    });
+    
+    // Return only access token (not refresh token)
+    return Results.Ok(new 
+    {
+        token = result.Token,
+        email = result.Email,
+        role = result.Role
+    });
 })
 .WithName("Login");
 
-app.MapPost("/auth/refresh", async (RefreshTokenRequest request, AuthService authService) =>
+app.MapPost("/auth/refresh", async (AuthService authService, HttpContext httpContext) =>
 {
-    var result = await authService.RefreshTokenAsync(request.RefreshToken);
+    // Get refresh token from cookie
+    var refreshToken = httpContext.Request.Cookies["refreshToken"];
+    
+    if (string.IsNullOrEmpty(refreshToken))
+    {
+        return Results.Unauthorized();
+    }
+    
+    var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+    var result = await authService.RefreshTokenAsync(refreshToken, ipAddress);
     if (result == null)
     {
         return Results.Unauthorized();
     }
-    return Results.Ok(result);
+    
+    // Set new refresh token as HttpOnly cookie (token rotation)
+    httpContext.Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
+    {
+        HttpOnly = true,
+        Secure = false, // Set to true in production with HTTPS
+        SameSite = SameSiteMode.Lax,
+        Expires = DateTimeOffset.UtcNow.AddDays(7)
+    });
+    
+    // Return only access token (not refresh token)
+    return Results.Ok(new 
+    {
+        token = result.Token,
+        email = result.Email,
+        role = result.Role
+    });
 })
 .WithName("RefreshToken");
+
+app.MapPost("/auth/logout", async (AuthService authService, HttpContext httpContext) =>
+{
+    // Get refresh token from cookie
+    var refreshToken = httpContext.Request.Cookies["refreshToken"];
+    
+    if (!string.IsNullOrEmpty(refreshToken))
+    {
+        // Revoke the refresh token in database
+        var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "0.0.0.0";
+        await authService.RevokeRefreshTokenAsync(refreshToken, ipAddress);
+    }
+    
+    // Clear refresh token cookie
+    httpContext.Response.Cookies.Delete("refreshToken");
+    
+    return Results.Ok(new { message = "Logged out successfully" });
+})
+.WithName("Logout");
 
 app.MapPut("/admin/users/{userId}/role", [Authorize(Roles = "Admin")] async (Guid userId, UpdateRoleRequest request, UserManagementService userManagement) =>
 {

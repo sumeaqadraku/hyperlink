@@ -23,7 +23,7 @@ public class AuthService
         _refreshTokenRepository = refreshTokenRepository;
     }
 
-    public async Task<AuthResponse?> RegisterAsync(RegisterRequest request)
+    public async Task<AuthResponse?> RegisterAsync(RegisterRequest request, string ipAddress)
     {
         if (await _userRepository.EmailExistsAsync(request.Email))
         {
@@ -43,10 +43,11 @@ public class AuthService
         await _userRepository.AddAsync(user);
 
         var token = _tokenService.GenerateAccessToken(user);
-        var refreshToken = await CreateRefreshTokenAsync(user.Id, "0.0.0.0");
+        var refreshToken = await CreateRefreshTokenAsync(user.Id, ipAddress);
 
         return new AuthResponse
         {
+            Id = user.Id,
             Token = token,
             RefreshToken = refreshToken.Token,
             Email = user.Email,
@@ -54,7 +55,7 @@ public class AuthService
         };
     }
 
-    public async Task<AuthResponse?> LoginAsync(LoginRequest request)
+    public async Task<AuthResponse?> LoginAsync(LoginRequest request, string ipAddress)
     {
         var user = await _userRepository.GetByEmailAsync(request.Email);
         if (user == null || !user.IsActive)
@@ -68,10 +69,11 @@ public class AuthService
         }
 
         var token = _tokenService.GenerateAccessToken(user);
-        var refreshToken = await CreateRefreshTokenAsync(user.Id, "0.0.0.0");
+        var refreshToken = await CreateRefreshTokenAsync(user.Id, ipAddress);
 
         return new AuthResponse
         {
+            Id = user.Id,
             Token = token,
             RefreshToken = refreshToken.Token,
             Email = user.Email,
@@ -79,7 +81,7 @@ public class AuthService
         };
     }
 
-    public async Task<AuthResponse?> RefreshTokenAsync(string token)
+    public async Task<AuthResponse?> RefreshTokenAsync(string token, string ipAddress)
     {
         var refreshToken = await _refreshTokenRepository.GetByTokenAsync(token);
         
@@ -94,11 +96,12 @@ public class AuthService
             return null;
         }
 
-        var newRefreshToken = await RotateRefreshTokenAsync(refreshToken, "0.0.0.0");
+        var newRefreshToken = await RotateRefreshTokenAsync(refreshToken, ipAddress);
         var accessToken = _tokenService.GenerateAccessToken(user);
 
         return new AuthResponse
         {
+            Id = user.Id,
             Token = accessToken,
             RefreshToken = newRefreshToken.Token,
             Email = user.Email,
@@ -135,5 +138,23 @@ public class AuthService
         await _refreshTokenRepository.UpdateAsync(oldToken);
         
         return newRefreshToken;
+    }
+
+    public async Task<bool> RevokeRefreshTokenAsync(string token, string ipAddress)
+    {
+        var refreshToken = await _refreshTokenRepository.GetByTokenAsync(token);
+        
+        if (refreshToken == null || !refreshToken.IsActive)
+        {
+            return false;
+        }
+
+        refreshToken.IsRevoked = true;
+        refreshToken.RevokedAt = DateTime.UtcNow;
+        refreshToken.RevokedByIp = ipAddress;
+        
+        await _refreshTokenRepository.UpdateAsync(refreshToken);
+        
+        return true;
     }
 }

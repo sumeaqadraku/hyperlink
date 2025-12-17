@@ -51,21 +51,15 @@ const attach = (client: AxiosInstance) => {
         originalRequest._retry = true
         isRefreshing = true
 
-        const refreshToken = localStorage.getItem('refreshToken')
-
-        if (!refreshToken) {
-          isRefreshing = false
-          localStorage.clear()
-          window.location.href = '/login'
-          return Promise.reject(error)
-        }
-
         try {
-          const response = await axios.post('/auth/refresh', { refreshToken })
-          const { token, refreshToken: newRefreshToken } = response.data
+          // Refresh using HttpOnly cookie - no need to send refreshToken in body
+          const response = await axios.post('/auth/refresh', {}, { 
+            withCredentials: true // Important: sends cookies
+          })
+          const { token } = response.data
 
+          // Store new access token
           localStorage.setItem('authToken', token)
-          localStorage.setItem('refreshToken', newRefreshToken)
           
           axios.defaults.headers.common['Authorization'] = 'Bearer ' + token
           client.defaults.headers.common['Authorization'] = 'Bearer ' + token
@@ -94,6 +88,8 @@ const attach = (client: AxiosInstance) => {
       if (token) {
         config.headers = setAuthHeader(config.headers as AxiosRequestHeaders | undefined, token)
       }
+      // Always include credentials for cookies
+      config.withCredentials = true
       return config
     },
     (error) => {
