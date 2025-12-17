@@ -83,8 +83,37 @@ const attach = (client: AxiosInstance) => {
   )
 
   client.interceptors.request.use(
-    (config) => {
-      const token = localStorage.getItem('authToken')
+    async (config) => {
+      // Skip refresh logic for auth endpoints to avoid infinite loops
+      if (config.url?.includes('/auth/')) {
+        config.withCredentials = true
+        return config
+      }
+      
+      let token = localStorage.getItem('authToken')
+      
+      // If no token, try to refresh proactively
+      if (!token) {
+        console.log('🔄 No authToken found, attempting proactive refresh...')
+        try {
+          // Use plain axios without interceptor for refresh call
+          const response = await axios.create().post('/auth/refresh', {}, { 
+            withCredentials: true 
+          })
+          token = response.data.token
+          localStorage.setItem('authToken', token)
+          axios.defaults.headers.common['Authorization'] = 'Bearer ' + token
+          client.defaults.headers.common['Authorization'] = 'Bearer ' + token
+          console.log('✅ Token refreshed successfully!')
+        } catch (err) {
+          console.log('❌ Token refresh failed:', err)
+          // Clear storage and redirect to login
+          localStorage.clear()
+          window.location.href = '/login'
+          return Promise.reject(new Error('Session expired'))
+        }
+      }
+      
       if (token) {
         config.headers = setAuthHeader(config.headers as AxiosRequestHeaders | undefined, token)
       }
