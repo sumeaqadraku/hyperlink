@@ -129,7 +129,9 @@ export default function SubscriptionManagement() {
                     {subscription.subscriptionNumber}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{subscription.customerEmail || 'N/A'}</div>
+                    <div className="text-sm text-gray-900">
+                      {subscription.customerName || subscription.customerEmail || `Customer #${subscription.customerId.substring(0, 8)}`}
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{subscription.productName || 'N/A'}</div>

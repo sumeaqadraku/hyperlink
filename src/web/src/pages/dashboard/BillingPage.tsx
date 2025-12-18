@@ -30,7 +30,7 @@ export default function BillingPage() {
       } else {
         setPayments([])
       }
-      setBalance(balanceData.currentBalance)
+      setBalance(balanceData?.currentBalance ?? 0)
     } catch (error) {
       console.error('Failed to load billing data:', error)
       // Use mock data for demo
