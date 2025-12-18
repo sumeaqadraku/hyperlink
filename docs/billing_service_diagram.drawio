@@ -1,0 +1,260 @@
+<mxfile host="app.diagrams.net" modified="2025-12-18T23:50:00.000Z" agent="Agent" version="1.0.0" type="device">
+  <diagram id="BillingServiceUML" name="Billing Service UML">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- STYLES -->
+        <mxCell id="style_class" value="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;" vertex="1" parent="1" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;">
+          <mxGeometry width="260" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="style_field" value="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;">
+          <mxGeometry width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="style_method" value="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;">
+          <mxGeometry width="260" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="style_separator" value="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" vertex="1" parent="1" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;">
+          <mxGeometry width="260" height="8" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== DOMAIN LAYER ==================== -->
+        
+        <!-- Entity: Invoice -->
+        <mxCell id="Invoice" value="Invoice&#xa;«Entity»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="400" y="800" width="300" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="Invoice_attribs" value="+ InvoiceNumber: string&#xa;+ CustomerId: Guid&#xa;+ InvoiceDate: DateTime&#xa;+ DueDate: DateTime&#xa;+ SubTotal: decimal&#xa;+ TaxAmount: decimal&#xa;+ TotalAmount: decimal&#xa;+ Status: InvoiceStatus&#xa;+ Notes: string?&#xa;+ Items: ICollection&lt;InvoiceItem&gt;&#xa;+ Payments: ICollection&lt;Payment&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Invoice">
+          <mxGeometry y="40" width="300" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="Invoice_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" vertex="1" parent="Invoice">
+          <mxGeometry y="190" width="300" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="Invoice_methods" value="+ AddItem(item: InvoiceItem): void&#xa;+ RecalculateTotals(): void&#xa;+ MarkAsIssued(): void&#xa;+ MarkAsPaid(): void&#xa;+ MarkAsOverdue(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Invoice">
+          <mxGeometry y="198" width="300" height="82" as="geometry" />
+        </mxCell>
+
+        <!-- Entity: InvoiceItem -->
+        <mxCell id="InvoiceItem" value="InvoiceItem&#xa;«Entity»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="800" y="800" width="250" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="InvoiceItem_attribs" value="+ InvoiceId: Guid&#xa;+ Description: string&#xa;+ Quantity: int&#xa;+ UnitPrice: decimal&#xa;+ Total: decimal&#xa;+ Invoice: Invoice?" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="InvoiceItem">
+          <mxGeometry y="40" width="250" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Entity: Payment -->
+        <mxCell id="Payment" value="Payment&#xa;«Entity»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="400" y="1150" width="300" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="Payment_attribs" value="+ InvoiceId: Guid&#xa;+ PaymentReference: string&#xa;+ Amount: decimal&#xa;+ PaymentDate: DateTime&#xa;+ Method: PaymentMethod&#xa;+ Status: PaymentStatus&#xa;+ Invoice: Invoice?" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Payment">
+          <mxGeometry y="40" width="300" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="Payment_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" vertex="1" parent="Payment">
+          <mxGeometry y="140" width="300" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="Payment_methods" value="+ MarkAsCompleted(): void&#xa;+ MarkAsFailed(): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="Payment">
+          <mxGeometry y="148" width="300" height="52" as="geometry" />
+        </mxCell>
+
+        <!-- Enum: InvoiceStatus -->
+        <mxCell id="InvoiceStatus" value="InvoiceStatus&#xa;«Enum»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="100" y="800" width="150" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="InvoiceStatus_vals" value="Draft = 1&#xa;Issued = 2&#xa;Paid = 3&#xa;Overdue = 4&#xa;Cancelled = 5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="InvoiceStatus">
+          <mxGeometry y="40" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Enum: PaymentStatus -->
+        <mxCell id="PaymentStatus" value="PaymentStatus&#xa;«Enum»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1150" width="150" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="PaymentStatus_vals" value="Pending = 1&#xa;Completed = 2&#xa;Failed = 3&#xa;Refunded = 4" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="PaymentStatus">
+          <mxGeometry y="40" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Enum: PaymentMethod -->
+        <mxCell id="PaymentMethod" value="PaymentMethod&#xa;«Enum»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1280" width="150" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="PaymentMethod_vals" value="CreditCard = 1&#xa;DebitCard = 2&#xa;BankTransfer = 3&#xa;Cash = 4&#xa;OnlinePayment = 5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="PaymentMethod">
+          <mxGeometry y="40" width="150" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== APPLICATION LAYER ==================== -->
+
+        <!-- Interface: IInvoiceService -->
+        <mxCell id="IInvoiceService" value="IInvoiceService&#xa;«Interface»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="250" y="450" width="350" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="IInvoiceService_methods" value="+ GetByIdAsync(id): Task&lt;Result&lt;InvoiceDto&gt;&gt;&#xa;+ GetAllAsync(): Task&lt;Result&lt;IEnumerable&lt;InvoiceDto&gt;&gt;&gt;&#xa;+ GetByCustomerIdAsync(id): Task&lt;Result&lt;IEnumerable&lt;InvoiceDto&gt;&gt;&gt;&#xa;+ CreateAsync(dto): Task&lt;Result&lt;InvoiceDto&gt;&gt;&#xa;+ IssueInvoiceAsync(id): Task&lt;Result&gt;&#xa;+ MarkAsPaidAsync(id): Task&lt;Result&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="IInvoiceService">
+          <mxGeometry y="40" width="350" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Service: InvoiceService -->
+        <mxCell id="InvoiceService" value="InvoiceService" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="250" y="620" width="350" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="InvoiceService_attribs" value="- _unitOfWork: IUnitOfWork&#xa;- _mapper: IMapper" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="InvoiceService">
+          <mxGeometry y="40" width="350" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Interface: IPaymentService -->
+        <mxCell id="IPaymentService" value="IPaymentService&#xa;«Interface»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="650" y="450" width="300" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="IPaymentService_methods" value="+ AddPaymentAsync(dto): Task&lt;Result&lt;PaymentDto&gt;&gt;&#xa;+ GetByInvoiceIdAsync(id): Task&lt;Result&lt;IEnumerable&lt;PaymentDto&gt;&gt;&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="IPaymentService">
+          <mxGeometry y="40" width="300" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Service: PaymentService -->
+        <mxCell id="PaymentService" value="PaymentService" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="650" y="620" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="PaymentService_attribs" value="- _unitOfWork: IUnitOfWork&#xa;- _mapper: IMapper" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="PaymentService">
+          <mxGeometry y="40" width="300" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Interface: IBalanceService -->
+        <mxCell id="IBalanceService" value="IBalanceService&#xa;«Interface»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="450" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="IBalanceService_methods" value="+ GetBalanceAsync(customerId): Task&lt;Result&lt;BalanceDto&gt;&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="IBalanceService">
+          <mxGeometry y="40" width="300" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Service: BalanceService -->
+        <mxCell id="BalanceService" value="BalanceService" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="620" width="300" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="BalanceService_attribs" value="- _unitOfWork: IUnitOfWork" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="BalanceService">
+          <mxGeometry y="40" width="300" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- DTOs -->
+        <mxCell id="InvoiceDto" value="InvoiceDto" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="450" width="180" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="InvoiceDto_attribs" value="+ Id: Guid&#xa;+ InvoiceNumber: string&#xa;+ CustomerId: Guid&#xa;+ InvoiceDate: DateTime&#xa;+ DueDate: DateTime&#xa;+ SubTotal: decimal&#xa;+ TaxAmount: decimal&#xa;+ TotalAmount: decimal&#xa;+ Status: InvoiceStatus&#xa;+ Items: List&lt;InvoiceItemDto&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="InvoiceDto">
+          <mxGeometry y="26" width="180" height="174" as="geometry" />
+        </mxCell>
+
+        <mxCell id="PaymentDto" value="PaymentDto" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="40" y="680" width="180" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="PaymentDto_attribs" value="+ Id: Guid&#xa;+ InvoiceId: Guid&#xa;+ PaymentReference: string&#xa;+ Amount: decimal&#xa;+ PaymentDate: DateTime&#xa;+ Method: int&#xa;+ Status: int" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="PaymentDto">
+          <mxGeometry y="26" width="180" height="114" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== API LAYER ==================== -->
+
+        <mxCell id="InvoicesController" value="InvoicesController" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="250" y="200" width="350" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="InvoicesController_attribs" value="- _invoiceService: IInvoiceService&#xa;- _logger: ILogger" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="InvoicesController">
+          <mxGeometry y="40" width="350" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="InvoicesController_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" vertex="1" parent="InvoicesController">
+          <mxGeometry y="80" width="350" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="InvoicesController_methods" value="+ GetById(id): IActionResult&#xa;+ GetAll(): IActionResult&#xa;+ GetByCustomer(id): IActionResult&#xa;+ Create(dto): IActionResult&#xa;+ Issue(id): IActionResult" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="InvoicesController">
+          <mxGeometry y="88" width="350" height="72" as="geometry" />
+        </mxCell>
+
+        <mxCell id="PaymentsController" value="PaymentsController" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="650" y="200" width="300" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="PaymentsController_attribs" value="- _paymentService: IPaymentService" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="PaymentsController">
+          <mxGeometry y="40" width="300" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="PaymentsController_sep" value="" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;" vertex="1" parent="PaymentsController">
+          <mxGeometry y="70" width="300" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="PaymentsController_methods" value="+ Create(dto): IActionResult&#xa;+ GetByInvoice(id): IActionResult" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="PaymentsController">
+          <mxGeometry y="78" width="300" height="42" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== INFRASTRUCTURE LAYER ==================== -->
+
+        <mxCell id="BillingDbContext" value="BillingDbContext" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="750" y="1050" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="BillingDbContext_attribs" value="+ Invoices: DbSet&lt;Invoice&gt;&#xa;+ Payments: DbSet&lt;Payment&gt;" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="BillingDbContext">
+          <mxGeometry y="40" width="250" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Interfaces for Repos -->
+        <mxCell id="IInvoiceRepository" value="IInvoiceRepository&#xa;«Interface»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="400" y="1450" width="300" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="IInvoiceRepository_methods" value="+ GetByIdAsync(id): Task&lt;Invoice?&gt;&#xa;+ GetAllAsync(): Task&lt;IEnumerable&lt;Invoice&gt;&gt;&#xa;+ AddAsync(invoice): Task&#xa;+ Update(invoice): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="IInvoiceRepository">
+          <mxGeometry y="40" width="300" height="80" as="geometry" />
+        </mxCell>
+
+        <mxCell id="IPaymentRepository" value="IPaymentRepository&#xa;«Interface»" style="swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=40;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="750" y="1450" width="300" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="IPaymentRepository_methods" value="+ GetByIdAsync(id): Task&lt;Payment?&gt;&#xa;+ AddAsync(payment): Task&#xa;+ Update(payment): void" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;" vertex="1" parent="IPaymentRepository">
+          <mxGeometry y="40" width="300" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== RELATIONSHIPS ==================== -->
+
+        <!-- Implementation: InvoiceService -> IInvoiceService -->
+        <mxCell id="rel_impl_invoice" edge="1" parent="1" source="InvoiceService" target="IInvoiceService">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="sourcePoint" />
+            <mxPoint as="targetPoint" />
+          </mxGeometry>
+          <mxCell style="dashed:1;endArrow:block;endFill:0;" value="«implements»" vertex="1" connectable="0" parent="rel_impl_invoice">
+             <mxGeometry x="-0.1" relative="1" as="geometry">
+                <mxPoint as="offset" />
+             </mxGeometry>
+          </mxCell>
+        </mxCell>
+
+        <!-- Implementation: PaymentService -> IPaymentService -->
+        <mxCell id="rel_impl_payment" edge="1" parent="1" source="PaymentService" target="IPaymentService">
+          <mxGeometry relative="1" as="geometry" />
+          <mxCell style="dashed:1;endArrow:block;endFill:0;" value="«implements»" vertex="1" connectable="0" parent="rel_impl_payment"/>
+        </mxCell>
+
+        <!-- Implementation: BalanceService -> IBalanceService -->
+        <mxCell id="rel_impl_balance" edge="1" parent="1" source="BalanceService" target="IBalanceService">
+            <mxGeometry relative="1" as="geometry" />
+            <mxCell style="dashed:1;endArrow:block;endFill:0;" value="«implements»" vertex="1" connectable="0" parent="rel_impl_balance"/>
+        </mxCell>
+
+        <!-- Composition: Invoice *-> InvoiceItem -->
+        <mxCell id="rel_comp_inv_item" edge="1" parent="1" source="Invoice" target="InvoiceItem">
+          <mxGeometry relative="1" as="geometry" />
+          <mxCell style="endArrow:diamond;endFill:1;endSize:14;startArrow:none;startFill:0;" value="" vertex="1" connectable="0" parent="rel_comp_inv_item"/>
+        </mxCell>
+
+        <!-- Association: Invoice 1->* Payment -->
+        <mxCell id="rel_assoc_inv_pay" edge="1" parent="1" source="Invoice" target="Payment">
+          <mxGeometry relative="1" as="geometry" />
+          <mxCell style="endArrow:open;endFill:0;startArrow:diamond;startFill:1;" value="" vertex="1" connectable="0" parent="rel_assoc_inv_pay"/>
+        </mxCell>
+
+        <!-- Dependency: Controller -> Service -->
+        <mxCell id="rel_dep_ctrl_inv" edge="1" parent="1" source="InvoicesController" target="IInvoiceService">
+          <mxGeometry relative="1" as="geometry" />
+          <mxCell style="dashed:1;endArrow:open;endFill:0;" value="«use»" vertex="1" connectable="0" parent="rel_dep_ctrl_inv"/>
+        </mxCell>
+
+        <mxCell id="rel_dep_ctrl_pay" edge="1" parent="1" source="PaymentsController" target="IPaymentService">
+          <mxGeometry relative="1" as="geometry" />
+          <mxCell style="dashed:1;endArrow:open;endFill:0;" value="«use»" vertex="1" connectable="0" parent="rel_dep_ctrl_pay"/>
+        </mxCell>
+        
+        <!-- Dependency: Service -> DTO -->
+        <mxCell id="rel_dep_srv_dto" edge="1" parent="1" source="IInvoiceService" target="InvoiceDto">
+            <mxGeometry relative="1" as="geometry" />
+            <mxCell style="dashed:1;endArrow:open;endFill:0;" value="«use»" vertex="1" connectable="0" parent="rel_dep_srv_dto"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
