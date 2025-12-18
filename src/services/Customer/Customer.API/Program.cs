@@ -58,8 +58,19 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<Customer.Infrastructure.Data.CustomerDbContext>();
-    await dbContext.Database.MigrateAsync();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dbContext = services.GetRequiredService<Customer.Infrastructure.Data.CustomerDbContext>();
+        await dbContext.Database.MigrateAsync();
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogInformation("Customer database migrated successfully.");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the Customer database.");
+    }
 }
 
 app.UseCors("AllowAll");
@@ -119,3 +130,5 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 app.Run();
+
+public partial class Program { }
