@@ -24,6 +24,9 @@ import CustomerManagement from './pages/dashboard/CustomerManagement'
 import BillingPage from './pages/dashboard/BillingPage'
 import InvoiceDetailsPage from './pages/dashboard/InvoiceDetailsPage'
 import UsagePage from './pages/dashboard/UsagePage'
+import DevicesPage from './pages/dashboard/DevicesPage'
+import SimCardsPage from './pages/dashboard/SimCardsPage'
+import ProvisioningRequestsPage from './pages/dashboard/ProvisioningRequestsPage'
 
 function App() {
   return (
@@ -54,6 +57,9 @@ function App() {
             <Route path="billing" element={<BillingPage />} />
             <Route path="billing/invoice/:id" element={<InvoiceDetailsPage />} />
             <Route path="usage" element={<UsagePage />} />
+            <Route path="devices" element={<DevicesPage />} />
+            <Route path="sim-cards" element={<SimCardsPage />} />
+            <Route path="provisioning" element={<ProvisioningRequestsPage />} />
           </Route>
         </Routes>
       </Router>

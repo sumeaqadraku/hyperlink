@@ -10,6 +10,9 @@ import {
   Repeat,
   FileText,
   Users,
+  Smartphone,
+  CreditCard as SimCardIcon,
+  ClipboardList,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { UserProfileDropdown } from '@/components/ui/UserProfileDropdown'
@@ -23,6 +26,9 @@ const navigation = [
   { name: 'Subscriptions', href: '/dashboard/subscriptions', icon: Repeat },
   { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
   { name: 'Usage', href: '/dashboard/usage', icon: Activity },
+  { name: 'Devices', href: '/dashboard/devices', icon: Smartphone },
+  { name: 'SIM Cards', href: '/dashboard/sim-cards', icon: SimCardIcon },
+  { name: 'Provisioning', href: '/dashboard/provisioning', icon: ClipboardList },
 ]
 
 export function DashboardLayout() {
