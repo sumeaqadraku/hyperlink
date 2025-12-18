@@ -19,10 +19,12 @@ builder.Services.AddDbContext<IdentityDbContext>(options =>
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IUserInformationRepository, UserInformationRepository>();
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserManagementService>();
+builder.Services.AddScoped<UserInformationService>();
 
 var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "YourSuperSecretKeyForJWTThatIsAtLeast32CharactersLong!";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -59,15 +61,43 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
     await dbContext.Database.MigrateAsync();
 
-    // Ensure the specified user has Admin role
+    // Ensure the admin user exists and has Admin role
     var userRepository = scope.ServiceProvider.GetRequiredService<IUserRepository>();
+    var passwordHasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
     const string adminEmail = "loralora@gmail.com";
+    const string adminPassword = "Admin123!";
+    
     var adminUser = await userRepository.GetByEmailAsync(adminEmail);
-    if (adminUser != null && !string.Equals(adminUser.Role, "Admin", StringComparison.OrdinalIgnoreCase))
+    if (adminUser == null)
     {
-        adminUser.Role = "Admin";
+        // Create admin user if doesn't exist
+        adminUser = new IdentityService.Domain.Entities.User
+        {
+            Id = Guid.NewGuid(),
+            Email = adminEmail,
+            PasswordHash = passwordHasher.HashPassword(adminPassword),
+            Role = "Admin",
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true
+        };
+        await userRepository.AddAsync(adminUser);
+        Console.WriteLine($"Admin user created: {adminEmail} with password: {adminPassword}");
+    }
+    else
+    {
+        // Ensure admin has correct role and reset password to known value
+        bool needsUpdate = false;
+        if (!string.Equals(adminUser.Role, "Admin", StringComparison.OrdinalIgnoreCase))
+        {
+            adminUser.Role = "Admin";
+            needsUpdate = true;
+        }
+        // Reset password to known value for development
+        adminUser.PasswordHash = passwordHasher.HashPassword(adminPassword);
+        adminUser.IsActive = true;
         adminUser.UpdatedAt = DateTime.UtcNow;
         await userRepository.UpdateAsync(adminUser);
+        Console.WriteLine($"Admin user updated: {adminEmail} - password reset to: {adminPassword}");
     }
 }
 
@@ -212,5 +242,208 @@ app.MapGet("/admin/users/{userId}", [Authorize(Roles = "Admin")] async (Guid use
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "IdentityService" }))
     .WithName("HealthCheck");
+
+// User Profile Endpoints (Authenticated Users)
+app.MapGet("/users/me", [Authorize] async (HttpContext httpContext, UserManagementService userManagement) =>
+{
+    var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var user = await userManagement.GetUserByIdAsync(userId);
+    if (user == null)
+    {
+        return Results.NotFound(new { message = "User not found" });
+    }
+    return Results.Ok(user);
+})
+.WithName("GetCurrentUser")
+.RequireAuthorization();
+
+app.MapPut("/users/me", [Authorize] async (UpdateUserRequest request, HttpContext httpContext, UserManagementService userManagement) =>
+{
+    var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await userManagement.UpdateUserAsync(userId, request);
+    if (!result)
+    {
+        return Results.BadRequest(new { message = "Failed to update user" });
+    }
+    return Results.Ok(new { message = "User updated successfully" });
+})
+.WithName("UpdateCurrentUser")
+.RequireAuthorization();
+
+app.MapPost("/users/me/change-password", [Authorize] async (ChangePasswordRequest request, HttpContext httpContext, UserManagementService userManagement) =>
+{
+    var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await userManagement.ChangePasswordAsync(userId, request);
+    if (!result)
+    {
+        return Results.BadRequest(new { message = "Failed to change password. Current password may be incorrect." });
+    }
+    return Results.Ok(new { message = "Password changed successfully" });
+})
+.WithName("ChangePassword")
+.RequireAuthorization();
+
+app.MapDelete("/users/me", [Authorize] async (HttpContext httpContext, UserManagementService userManagement) =>
+{
+    var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await userManagement.DeleteUserAsync(userId);
+    if (!result)
+    {
+        return Results.BadRequest(new { message = "Failed to delete user" });
+    }
+    return Results.Ok(new { message = "User deactivated successfully" });
+})
+.WithName("DeleteCurrentUser")
+.RequireAuthorization();
+
+// User Information Endpoints (Authenticated Users)
+app.MapGet("/users/me/information", [Authorize] async (HttpContext httpContext, UserInformationService userInfoService) =>
+{
+    var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var userInfo = await userInfoService.GetByUserIdAsync(userId);
+    if (userInfo == null)
+    {
+        return Results.Ok(new { message = "No user information found", data = (object?)null });
+    }
+    return Results.Ok(userInfo);
+})
+.WithName("GetCurrentUserInformation")
+.RequireAuthorization();
+
+app.MapPost("/users/me/information", [Authorize] async (CreateUserInformationRequest request, HttpContext httpContext, UserInformationService userInfoService) =>
+{
+    var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var userInfo = await userInfoService.CreateAsync(userId, request);
+    if (userInfo == null)
+    {
+        return Results.BadRequest(new { message = "Failed to create user information. It may already exist." });
+    }
+    return Results.Created($"/users/me/information", userInfo);
+})
+.WithName("CreateCurrentUserInformation")
+.RequireAuthorization();
+
+app.MapPut("/users/me/information", [Authorize] async (UpdateUserInformationRequest request, HttpContext httpContext, UserInformationService userInfoService) =>
+{
+    var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var userInfo = await userInfoService.UpdateAsync(userId, request);
+    if (userInfo == null)
+    {
+        return Results.NotFound(new { message = "User information not found" });
+    }
+    return Results.Ok(userInfo);
+})
+.WithName("UpdateCurrentUserInformation")
+.RequireAuthorization();
+
+app.MapDelete("/users/me/information", [Authorize] async (HttpContext httpContext, UserInformationService userInfoService) =>
+{
+    var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+    {
+        return Results.Unauthorized();
+    }
+
+    var result = await userInfoService.DeleteAsync(userId);
+    if (!result)
+    {
+        return Results.NotFound(new { message = "User information not found" });
+    }
+    return Results.Ok(new { message = "User information deleted successfully" });
+})
+.WithName("DeleteCurrentUserInformation")
+.RequireAuthorization();
+
+// Admin Endpoints for User Information Management
+app.MapGet("/admin/user-information", [Authorize(Roles = "Admin")] async (UserInformationService userInfoService) =>
+{
+    var userInfos = await userInfoService.GetAllAsync();
+    return Results.Ok(userInfos);
+})
+.WithName("GetAllUserInformation")
+.RequireAuthorization();
+
+app.MapGet("/admin/user-information/{id}", [Authorize(Roles = "Admin")] async (Guid id, UserInformationService userInfoService) =>
+{
+    var userInfo = await userInfoService.GetByIdAsync(id);
+    if (userInfo == null)
+    {
+        return Results.NotFound(new { message = "User information not found" });
+    }
+    return Results.Ok(userInfo);
+})
+.WithName("GetUserInformationById")
+.RequireAuthorization();
+
+app.MapGet("/admin/users/{userId}/information", [Authorize(Roles = "Admin")] async (Guid userId, UserInformationService userInfoService) =>
+{
+    var userInfo = await userInfoService.GetByUserIdAsync(userId);
+    if (userInfo == null)
+    {
+        return Results.NotFound(new { message = "User information not found" });
+    }
+    return Results.Ok(userInfo);
+})
+.WithName("GetUserInformationByUserId")
+.RequireAuthorization();
+
+app.MapPut("/admin/users/{userId}/information", [Authorize(Roles = "Admin")] async (Guid userId, UpdateUserInformationRequest request, UserInformationService userInfoService) =>
+{
+    var userInfo = await userInfoService.UpdateAsync(userId, request);
+    if (userInfo == null)
+    {
+        return Results.NotFound(new { message = "User information not found" });
+    }
+    return Results.Ok(userInfo);
+})
+.WithName("AdminUpdateUserInformation")
+.RequireAuthorization();
+
+app.MapDelete("/admin/users/{userId}/information", [Authorize(Roles = "Admin")] async (Guid userId, UserInformationService userInfoService) =>
+{
+    var result = await userInfoService.DeleteAsync(userId);
+    if (!result)
+    {
+        return Results.NotFound(new { message = "User information not found" });
+    }
+    return Results.Ok(new { message = "User information deleted successfully" });
+})
+.WithName("AdminDeleteUserInformation")
+.RequireAuthorization();
 
 app.Run();

@@ -34,6 +34,17 @@ export interface OfferDetails {
   updatedAt?: string
 }
 
+type ProductIdCasing = {
+  productId?: string
+  ProductId?: string
+  productID?: string
+}
+
+const readProductId = (dto: BackendOfferDetails): string => {
+  const d = dto as BackendOfferDetails & ProductIdCasing
+  return d.productId ?? d.ProductId ?? d.productID ?? ''
+}
+
 // Backend DTO shape - API returns camelCase (ASP.NET Core default JSON serialization)
 type BackendOfferDetails = {
   id: string
@@ -60,7 +71,8 @@ type BackendOfferDetails = {
 
 const toUiOfferDetails = (dto: BackendOfferDetails): OfferDetails => ({
   id: dto.id,
-  productId: dto.productId,
+  // Ensure productId is always propagated (guard against unexpected casing/shape)
+  productId: readProductId(dto),
   billingCycle: dto.billingCycle,
   detailedDescription: dto.detailedDescription,
   speedBandwidth: dto.speedBandwidth,
@@ -81,30 +93,62 @@ const toUiOfferDetails = (dto: BackendOfferDetails): OfferDetails => ({
   updatedAt: dto.updatedAt,
 })
 
-const toBackendDto = (details: Partial<OfferDetails> & { productId: string }): Record<string, unknown> => ({
+// Normalize optional values to avoid sending invalid types (e.g., empty string for DateTime?)
+const normalizeString = (v?: string) => (v && v.trim() !== '' ? v : undefined)
+const normalizeDate = (v?: string) => (v && v.trim() !== '' ? v : undefined)
+
+const toBackendCreateDto = (details: Partial<OfferDetails> & { productId: string }): Record<string, unknown> => ({
   productId: details.productId,
   billingCycle: details.billingCycle || 'Monthly',
   detailedDescription: details.detailedDescription || '',
-  speedBandwidth: details.speedBandwidth,
-  dataLimit: details.dataLimit,
-  technology: details.technology,
+  speedBandwidth: normalizeString(details.speedBandwidth),
+  dataLimit: normalizeString(details.dataLimit),
+  technology: normalizeString(details.technology),
   contractDurationMonths: details.contractDurationMonths,
-  installationType: details.installationType,
+  installationType: normalizeString(details.installationType),
   isAvailable: details.isAvailable ?? true,
-  coverageArea: details.coverageArea,
-  availableFrom: details.availableFrom,
-  availableUntil: details.availableUntil,
-  includedServices: details.includedServices,
-  promotions: details.promotions,
-  bonusFeatures: details.bonusFeatures,
-  eligibleCustomers: details.eligibleCustomers,
+  coverageArea: normalizeString(details.coverageArea),
+  availableFrom: normalizeDate(details.availableFrom),
+  availableUntil: normalizeDate(details.availableUntil),
+  includedServices: normalizeString(details.includedServices),
+  promotions: normalizeString(details.promotions),
+  bonusFeatures: normalizeString(details.bonusFeatures),
+  eligibleCustomers: normalizeString(details.eligibleCustomers),
+  minimumAge: details.minimumAge,
+})
+
+// Update DTO must NOT include productId (backend UpdateOfferDetailsDto does not accept it)
+const toBackendUpdateDto = (details: Partial<OfferDetails>): Record<string, unknown> => ({
+  billingCycle: details.billingCycle || 'Monthly',
+  detailedDescription: details.detailedDescription || '',
+  speedBandwidth: normalizeString(details.speedBandwidth),
+  dataLimit: normalizeString(details.dataLimit),
+  technology: normalizeString(details.technology),
+  contractDurationMonths: details.contractDurationMonths,
+  installationType: normalizeString(details.installationType),
+  isAvailable: details.isAvailable ?? true,
+  coverageArea: normalizeString(details.coverageArea),
+  availableFrom: normalizeDate(details.availableFrom),
+  availableUntil: normalizeDate(details.availableUntil),
+  includedServices: normalizeString(details.includedServices),
+  promotions: normalizeString(details.promotions),
+  bonusFeatures: normalizeString(details.bonusFeatures),
+  eligibleCustomers: normalizeString(details.eligibleCustomers),
   minimumAge: details.minimumAge,
 })
 
 export const offerDetailsService = {
   getAll: async () => {
     const response = await apiClient.get<BackendOfferDetails[]>('/catalog/offerdetails')
-    return response.data.map(toUiOfferDetails)
+    const mapped = response.data.map(toUiOfferDetails)
+    // Debug guard to surface potential missing productId issues
+    mapped.forEach((m) => {
+      if (!m.productId) {
+        // eslint-disable-next-line no-console
+        console.warn('OfferDetails item without productId detected:', m)
+      }
+    })
+    return mapped
   },
 
   getAvailable: async () => {
@@ -123,13 +167,23 @@ export const offerDetailsService = {
   },
 
   create: async (details: Omit<OfferDetails, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const payload = toBackendDto(details)
+    if (!details.productId) {
+      throw new Error('productId is required to create OfferDetails')
+    }
+    const payload = toBackendCreateDto(details)
+    // eslint-disable-next-line no-console
+    console.log('Sending offer details (create):', payload)
     const response = await apiClient.post<BackendOfferDetails>('/catalog/offerdetails', payload)
     return toUiOfferDetails(response.data)
   },
 
   update: async (id: string, details: Partial<OfferDetails>) => {
-    const payload = toBackendDto({ ...details, productId: details.productId || '' })
+    if (!id) {
+      throw new Error('OfferDetails id is required for update')
+    }
+    const payload = toBackendUpdateDto(details)
+    // eslint-disable-next-line no-console
+    console.log('Sending offer details (update):', { id, payload })
     const response = await apiClient.put<BackendOfferDetails>(`/catalog/offerdetails/${id}`, payload)
     return toUiOfferDetails(response.data)
   },
@@ -141,6 +195,9 @@ export const offerDetailsService = {
   },
 
   delete: async (id: string) => {
+    if (!id) {
+      throw new Error('OfferDetails id is required for delete')
+    }
     await apiClient.delete(`/catalog/offerdetails/${id}`)
   }
 }
