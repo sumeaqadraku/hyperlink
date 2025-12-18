@@ -1,34 +1,74 @@
 import { apiClient } from './api'
 
-export interface Subscription {
+export interface SubscriptionDto {
   id: string
   customerId: string
-  offerId: string
-  offerName: string
-  status: 'Active' | 'Suspended' | 'Cancelled'
-  startDate: string
+  customerName?: string
+  customerEmail?: string
+  productId: string
+  productName?: string
+  price: number
+  subscriptionNumber: string
+  startDate?: string
   endDate?: string
-  monthlyPrice: number
+  autoRenew: boolean
+  status: string
+  stripeCustomerId?: string
+  stripeSubscriptionId?: string
+  createdAt: string
+}
+
+export interface CreateSubscriptionRequest {
+  customerId: string
+  productId: string
+  productName?: string
+  price: number
+  successUrl: string
+  cancelUrl: string
+}
+
+export interface CreateSubscriptionResponse {
+  subscriptionId: string
+  checkoutUrl: string
+}
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('authToken')
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  }
 }
 
 export const subscriptionService = {
-  getSubscriptions: async () => {
-    const response = await apiClient.get<Subscription[]>('/provisioning/subscriptions')
-    return response.data
+  getAll: async (): Promise<SubscriptionDto[]> => {
+    const res = await apiClient.get('/customer/subscriptions', {
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
+    return res.data
   },
 
-  getSubscriptionById: async (id: string) => {
-    const response = await apiClient.get<Subscription>(`/provisioning/subscriptions/${id}`)
-    return response.data
+  getByCustomerId: async (customerId: string): Promise<SubscriptionDto[]> => {
+    const res = await apiClient.get(`/customer/subscriptions/customer/${customerId}`, {
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
+    return res.data
   },
 
-  createSubscription: async (subscription: Omit<Subscription, 'id'>) => {
-    const response = await apiClient.post<Subscription>('/provisioning/subscriptions', subscription)
-    return response.data
+  create: async (request: CreateSubscriptionRequest): Promise<CreateSubscriptionResponse> => {
+    const res = await apiClient.post('/customer/subscriptions', request, {
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
+    return res.data
   },
 
-  updateSubscriptionStatus: async (id: string, status: Subscription['status']) => {
-    const response = await apiClient.patch<Subscription>(`/provisioning/subscriptions/${id}/status`, { status })
-    return response.data
-  },
+  updateStatus: async (id: string, status: string): Promise<void> => {
+    await apiClient.patch(`/customer/subscriptions/${id}/status`, { status }, {
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
+  }
 }

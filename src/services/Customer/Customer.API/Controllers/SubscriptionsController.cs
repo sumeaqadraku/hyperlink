@@ -15,26 +15,26 @@ public class SubscriptionsController : ControllerBase
         _subscriptionService = subscriptionService;
     }
 
-    [HttpGet("account/{accountId}")]
-    public async Task<ActionResult<IEnumerable<SubscriptionDto>>> GetByAccount(Guid accountId, CancellationToken ct)
+    [HttpGet("customer/{customerId}")]
+    public async Task<ActionResult<IEnumerable<SubscriptionDto>>> GetByCustomer(Guid customerId, CancellationToken ct)
     {
-        var result = await _subscriptionService.GetByAccountIdAsync(accountId, ct);
-        return Ok(result);
-    }
-
-    [HttpGet("active/customer/{customerId}")]
-    public async Task<ActionResult<IEnumerable<SubscriptionDto>>> GetActiveByCustomer(Guid customerId, CancellationToken ct)
-    {
-        var result = await _subscriptionService.GetActiveByCustomerIdAsync(customerId, ct);
+        var result = await _subscriptionService.GetByCustomerIdAsync(customerId, ct);
         return Ok(result);
     }
 
     [HttpPost]
-    public async Task<ActionResult<SubscriptionDto>> Create([FromBody] CreateSubscriptionRequest request, CancellationToken ct)
+    public async Task<ActionResult<CreateSubscriptionResponse>> Create([FromBody] CreateSubscriptionRequest request, CancellationToken ct)
     {
         var created = await _subscriptionService.CreateAsync(request, ct);
-        if (created == null) return BadRequest(new { message = "Account not found" });
-        return CreatedAtAction(nameof(GetByAccount), new { accountId = created.AccountId }, created);
+        if (created == null) return BadRequest(new { message = "Customer not found" });
+        return Ok(created);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<SubscriptionDto>>> GetAll(CancellationToken ct)
+    {
+        var result = await _subscriptionService.GetAllAsync(ct);
+        return Ok(result);
     }
 
     [HttpPatch("{id}/status")]
@@ -49,7 +49,15 @@ public class SubscriptionsController : ControllerBase
     public async Task<ActionResult> Delete(Guid id, CancellationToken ct)
     {
         var ok = await _subscriptionService.DeleteAsync(id, ct);
-        if (!ok) return NotFound();
+        if (!ok) return BadRequest();
         return NoContent();
+    }
+
+    [HttpPost("{id}/confirm")]
+    public async Task<ActionResult> Confirm(Guid id, [FromBody] ConfirmSubscriptionRequest request, CancellationToken ct)
+    {
+        var ok = await _subscriptionService.ConfirmSubscriptionAsync(id, request.SessionId, ct);
+        if (!ok) return BadRequest(new { message = "Failed to confirm subscription" });
+        return Ok(new { message = "Subscription confirmed successfully" });
     }
 }

@@ -62,4 +62,22 @@ public class InvoiceRepository : IInvoiceRepository
     {
         _context.Invoices.Update(invoice);
     }
+    
+    public async Task<IEnumerable<Invoice>> GetBySubscriptionIdAsync(Guid subscriptionId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Invoices
+            .Where(i => i.SubscriptionId == subscriptionId)
+            .Include(i => i.Items)
+            .Include(i => i.Payments)
+            .OrderByDescending(i => i.InvoiceDate)
+            .ToListAsync(cancellationToken);
+    }
+    
+    public async Task<Invoice?> GetByStripeInvoiceIdAsync(string stripeInvoiceId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Invoices
+            .Include(i => i.Items)
+            .Include(i => i.Payments)
+            .FirstOrDefaultAsync(i => i.StripeInvoiceId == stripeInvoiceId, cancellationToken);
+    }
 }

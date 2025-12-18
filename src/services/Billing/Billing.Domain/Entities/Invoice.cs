@@ -6,6 +6,7 @@ public class Invoice : BaseEntity, IAggregateRoot
 {
     public string InvoiceNumber { get; private set; }
     public Guid CustomerId { get; private set; }
+    public Guid? SubscriptionId { get; private set; }
     public DateTime InvoiceDate { get; private set; }
     public DateTime DueDate { get; private set; }
     public decimal SubTotal { get; private set; }
@@ -13,6 +14,16 @@ public class Invoice : BaseEntity, IAggregateRoot
     public decimal TotalAmount { get; private set; }
     public InvoiceStatus Status { get; private set; }
     public string? Notes { get; private set; }
+    
+    // Stripe integration
+    public string? StripeInvoiceId { get; private set; }
+    public string? StripeCustomerId { get; private set; }
+    public string? StripePdfUrl { get; private set; }
+    public DateTime? PaidAt { get; private set; }
+    
+    // Billing period for subscriptions
+    public DateTime? PeriodStart { get; private set; }
+    public DateTime? PeriodEnd { get; private set; }
 
     // Navigation properties
     public ICollection<InvoiceItem> Items { get; private set; }
@@ -65,12 +76,46 @@ public class Invoice : BaseEntity, IAggregateRoot
     public void MarkAsPaid()
     {
         Status = InvoiceStatus.Paid;
+        PaidAt = DateTime.UtcNow;
         MarkAsUpdated();
     }
 
     public void MarkAsOverdue()
     {
         Status = InvoiceStatus.Overdue;
+        MarkAsUpdated();
+    }
+    
+    public void SetStripeInvoice(string stripeInvoiceId, string? pdfUrl = null)
+    {
+        StripeInvoiceId = stripeInvoiceId;
+        if (!string.IsNullOrEmpty(pdfUrl))
+            StripePdfUrl = pdfUrl;
+        MarkAsUpdated();
+    }
+    
+    public void SetStripeCustomer(string stripeCustomerId)
+    {
+        StripeCustomerId = stripeCustomerId;
+        MarkAsUpdated();
+    }
+    
+    public void SetSubscription(Guid subscriptionId)
+    {
+        SubscriptionId = subscriptionId;
+        MarkAsUpdated();
+    }
+    
+    public void SetBillingPeriod(DateTime periodStart, DateTime periodEnd)
+    {
+        PeriodStart = periodStart;
+        PeriodEnd = periodEnd;
+        MarkAsUpdated();
+    }
+    
+    public void Cancel()
+    {
+        Status = InvoiceStatus.Cancelled;
         MarkAsUpdated();
     }
 }

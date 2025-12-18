@@ -10,9 +10,20 @@ const normalizeBase = (input?: string): string => {
   return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`
 }
 
+const normalizeGatewayBase = (input?: string): string => {
+  if (!input) return ''
+  return input.endsWith('/') ? input.slice(0, -1) : input
+}
+
 const baseURL = normalizeBase(rawBase)
+const gatewayURL = normalizeGatewayBase(rawBase)
 
 export const apiClient = axios.create({
   baseURL,
+  headers: { 'Content-Type': 'application/json' },
+})
+
+export const gatewayClient = axios.create({
+  baseURL: gatewayURL,
   headers: { 'Content-Type': 'application/json' },
 })

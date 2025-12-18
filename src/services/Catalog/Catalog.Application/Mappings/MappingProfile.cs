@@ -22,5 +22,10 @@ public class MappingProfile : Profile
         CreateMap<OfferDetails, OfferDetailsDto>();
         CreateMap<CreateOfferDetailsDto, OfferDetails>();
         CreateMap<UpdateOfferDetailsDto, OfferDetails>();
+
+        // ServiceType mappings
+        CreateMap<ServiceType, ServiceTypeDto>();
+        CreateMap<CreateServiceTypeDto, ServiceType>();
+        CreateMap<UpdateServiceTypeDto, ServiceType>();
     }
 }

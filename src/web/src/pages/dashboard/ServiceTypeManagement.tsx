@@ -51,6 +51,7 @@ export default function ServiceTypeManagement() {
       id: '',
       name: '',
       description: '',
+      code: '',
       icon: '',
       isActive: true,
       displayOrder: serviceTypes.length,
@@ -78,6 +79,11 @@ export default function ServiceTypeManagement() {
       return
     }
 
+    if (isCreateMode && !editingServiceType.code.trim()) {
+      setError('Code is required')
+      return
+    }
+
     try {
       setError(null)
       
@@ -85,6 +91,7 @@ export default function ServiceTypeManagement() {
         const payload: CreateServiceTypeRequest = {
           name: editingServiceType.name,
           description: editingServiceType.description || undefined,
+          code: editingServiceType.code,
           icon: editingServiceType.icon || undefined,
           displayOrder: editingServiceType.displayOrder
         }
@@ -279,6 +286,18 @@ export default function ServiceTypeManagement() {
                   onChange={(e) => setEditingServiceType({ ...editingServiceType, name: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
                   placeholder="e.g., Mobile, Internet, TV"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Code *</label>
+                <input
+                  type="text"
+                  value={editingServiceType.code}
+                  onChange={(e) => setEditingServiceType({ ...editingServiceType, code: e.target.value.toUpperCase() })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-secondary"
+                  placeholder="e.g., MOBILE, INTERNET, TV"
+                  disabled={!isCreateMode}
                 />
               </div>
 

@@ -4,6 +4,7 @@ using Customer.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Customer.Infrastructure.Migrations
 {
     [DbContext(typeof(CustomerDbContext))]
-    partial class CustomerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251218201401_AddCustomerIdToSubscription")]
+    partial class AddCustomerIdToSubscription
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,6 +177,9 @@ namespace Customer.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("char(36)");
+
                     b.Property<bool>("AutoRenew")
                         .HasColumnType("tinyint(1)");
 
@@ -226,6 +232,8 @@ namespace Customer.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccountId");
+
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("SubscriptionNumber")
@@ -258,6 +266,10 @@ namespace Customer.Infrastructure.Migrations
 
             modelBuilder.Entity("Customer.Domain.Entities.Subscription", b =>
                 {
+                    b.HasOne("Customer.Domain.Entities.Account", null)
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("AccountId");
+
                     b.HasOne("Customer.Domain.Entities.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
@@ -265,6 +277,11 @@ namespace Customer.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Customer.Domain.Entities.Account", b =>
+                {
+                    b.Navigation("Subscriptions");
                 });
 
             modelBuilder.Entity("Customer.Domain.Entities.Customer", b =>

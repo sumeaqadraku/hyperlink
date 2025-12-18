@@ -186,6 +186,32 @@ app.MapPost("/auth/logout", async (AuthService authService, HttpContext httpCont
 })
 .WithName("Logout");
 
+app.MapGet("/users/me", [Authorize] async (ClaimsPrincipal user, UserManagementService userManagement) =>
+{
+    var emailClaim = user.FindFirst(ClaimTypes.Email)?.Value;
+    if (string.IsNullOrEmpty(emailClaim))
+    {
+        return Results.Unauthorized();
+    }
+    
+    var userDto = await userManagement.GetUserByEmailAsync(emailClaim);
+    if (userDto == null)
+    {
+        return Results.NotFound(new { message = "User not found" });
+    }
+    return Results.Ok(userDto);
+})
+.WithName("GetCurrentUser")
+.RequireAuthorization();
+
+app.MapGet("/admin/users", [Authorize(Roles = "Admin")] async (UserManagementService userManagement) =>
+{
+    var users = await userManagement.GetAllUsersAsync();
+    return Results.Ok(users);
+})
+.WithName("GetAllUsers")
+.RequireAuthorization();
+
 app.MapPut("/admin/users/{userId}/role", [Authorize(Roles = "Admin")] async (Guid userId, UpdateRoleRequest request, UserManagementService userManagement) =>
 {
     var result = await userManagement.UpdateUserRoleAsync(userId, request.Role);

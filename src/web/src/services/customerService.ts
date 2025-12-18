@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { apiClient } from './api'
 
 export interface CustomerDto {
   id: string
@@ -57,7 +57,7 @@ const getAuthHeaders = () => {
 
 export const customerService = {
   getAll: async (): Promise<CustomerDto[]> => {
-    const res = await axios.get('/api/customer/customers', { 
+    const res = await apiClient.get('/customer/customers', { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
@@ -65,7 +65,7 @@ export const customerService = {
   },
 
   getById: async (id: string): Promise<CustomerDto> => {
-    const res = await axios.get(`/api/customer/customers/${id}`, { 
+    const res = await apiClient.get(`/customer/customers/${id}`, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
@@ -73,7 +73,7 @@ export const customerService = {
   },
 
   getByUserId: async (userId: string): Promise<CustomerDto> => {
-    const res = await axios.get(`/api/customer/customers/by-user/${userId}`, { 
+    const res = await apiClient.get(`/customer/customers/by-user/${userId}`, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
@@ -82,7 +82,7 @@ export const customerService = {
 
   getMyProfile: async (): Promise<CustomerDto | null> => {
     try {
-      const res = await axios.get('/api/customer/customers/me', { 
+      const res = await apiClient.get('/customer/customers/me', { 
         withCredentials: true,
         headers: getAuthHeaders()
       })
@@ -94,7 +94,7 @@ export const customerService = {
   },
 
   create: async (payload: CreateCustomerRequest): Promise<CustomerDto> => {
-    const res = await axios.post('/api/customer/customers', payload, { 
+    const res = await apiClient.post('/customer/customers', payload, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
@@ -102,7 +102,7 @@ export const customerService = {
   },
 
   createMyProfile: async (payload: CreateCustomerRequest): Promise<CustomerDto> => {
-    const res = await axios.post('/api/customer/customers/me', payload, { 
+    const res = await apiClient.post('/customer/customers/me', payload, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
@@ -110,7 +110,7 @@ export const customerService = {
   },
 
   update: async (userId: string, payload: UpdateCustomerRequest): Promise<CustomerDto> => {
-    const res = await axios.put(`/api/customer/customers/by-user/${userId}`, payload, { 
+    const res = await apiClient.put(`/customer/customers/by-user/${userId}`, payload, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
@@ -118,7 +118,7 @@ export const customerService = {
   },
 
   updateMyProfile: async (payload: UpdateCustomerRequest): Promise<CustomerDto> => {
-    const res = await axios.put('/api/customer/customers/me', payload, { 
+    const res = await apiClient.put('/customer/customers/me', payload, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
@@ -126,14 +126,14 @@ export const customerService = {
   },
 
   delete: async (userId: string): Promise<void> => {
-    await axios.delete(`/api/customer/customers/by-user/${userId}`, { 
+    await apiClient.delete(`/customer/customers/by-user/${userId}`, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
   },
 
   deleteMyProfile: async (): Promise<void> => {
-    await axios.delete('/api/customer/customers/me', { 
+    await apiClient.delete('/customer/customers/me', { 
       withCredentials: true,
       headers: getAuthHeaders()
     })

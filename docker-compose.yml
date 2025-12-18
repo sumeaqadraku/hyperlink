@@ -134,20 +134,6 @@ services:
     networks:
       - telecom-network
 
-  frontend:
-    build:
-      context: ./src/Frontend/telecom-web-app
-      dockerfile: Dockerfile
-    container_name: telecom-frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - VITE_API_URL=http://localhost:5000
-    depends_on:
-      - gateway-api
-    networks:
-      - telecom-network
-
 networks:
   telecom-network:
     driver: bridge

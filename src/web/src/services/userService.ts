@@ -1,4 +1,4 @@
-import axios from 'axios'
+import { gatewayClient } from './api'
 
 export interface UserDto {
   id: string
@@ -31,7 +31,7 @@ const getAuthHeaders = () => {
 
 export const userService = {
   getAll: async (): Promise<UserDto[]> => {
-    const res = await axios.get('/admin/users', { 
+    const res = await gatewayClient.get('/admin/users', { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
@@ -39,7 +39,7 @@ export const userService = {
   },
 
   getById: async (id: string): Promise<UserDto> => {
-    const res = await axios.get(`/admin/users/${id}`, { 
+    const res = await gatewayClient.get(`/admin/users/${id}`, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
@@ -47,7 +47,7 @@ export const userService = {
   },
 
   create: async (payload: CreateUserRequest): Promise<UserDto> => {
-    const res = await axios.post('/admin/users', payload, { 
+    const res = await gatewayClient.post('/admin/users', payload, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
@@ -55,21 +55,21 @@ export const userService = {
   },
 
   update: async (id: string, payload: UpdateUserRequest): Promise<void> => {
-    await axios.put(`/admin/users/${id}`, payload, { 
+    await gatewayClient.put(`/admin/users/${id}`, payload, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
   },
 
   updateRole: async (id: string, role: string): Promise<void> => {
-    await axios.put(`/admin/users/${id}/role`, { role }, { 
+    await gatewayClient.put(`/admin/users/${id}/role`, { role }, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })
   },
 
   delete: async (id: string): Promise<void> => {
-    await axios.delete(`/admin/users/${id}`, { 
+    await gatewayClient.delete(`/admin/users/${id}`, { 
       withCredentials: true,
       headers: getAuthHeaders()
     })

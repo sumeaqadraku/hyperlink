@@ -56,4 +56,37 @@ public class UserManagementService
             user.UpdatedAt
         };
     }
+
+    public async Task<object?> GetUserByEmailAsync(string email)
+    {
+        var user = await _userRepository.GetByEmailAsync(email);
+        if (user == null)
+        {
+            return null;
+        }
+
+        return new
+        {
+            user.Id,
+            user.Email,
+            user.Role,
+            user.IsActive,
+            user.CreatedAt,
+            user.UpdatedAt
+        };
+    }
+
+    public async Task<IEnumerable<object>> GetAllUsersAsync()
+    {
+        var users = await _userRepository.GetAllAsync();
+        return users.Select(user => new
+        {
+            user.Id,
+            user.Email,
+            user.Role,
+            user.IsActive,
+            user.CreatedAt,
+            user.UpdatedAt
+        });
+    }
 }

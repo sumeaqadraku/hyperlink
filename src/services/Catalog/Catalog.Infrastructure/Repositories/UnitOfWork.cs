@@ -10,6 +10,7 @@ public class UnitOfWork : IUnitOfWork
     private IDbContextTransaction? _transaction;
     private IProductRepository? _productRepository;
     private ITariffPlanRepository? _tariffPlanRepository;
+    private IServiceTypeRepository? _serviceTypeRepository;
 
     public UnitOfWork(CatalogDbContext context)
     {
@@ -21,6 +22,9 @@ public class UnitOfWork : IUnitOfWork
 
     public ITariffPlanRepository TariffPlans => 
         _tariffPlanRepository ??= new TariffPlanRepository(_context);
+
+    public IServiceTypeRepository ServiceTypes => 
+        _serviceTypeRepository ??= new ServiceTypeRepository(_context);
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

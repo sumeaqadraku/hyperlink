@@ -46,6 +46,11 @@ builder.Services.AddAuthorization();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<CustomerProfileService>();
+
+// Configure Stripe
+var stripeApiKey = builder.Configuration["Stripe:SecretKey"] ?? "sk_test_YOUR_SECRET_KEY_HERE";
+builder.Services.AddScoped<IStripeService>(sp => new StripeService(stripeApiKey));
+
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();

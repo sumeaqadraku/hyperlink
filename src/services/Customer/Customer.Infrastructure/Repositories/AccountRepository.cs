@@ -16,14 +16,12 @@ public class AccountRepository : IAccountRepository
     public async Task<Customer.Domain.Entities.Account?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Accounts
-            .Include(a => a.Subscriptions)
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 
     public async Task<IEnumerable<Customer.Domain.Entities.Account>> GetByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken = default)
     {
         return await _context.Accounts
-            .Include(a => a.Subscriptions)
             .Where(a => a.CustomerId == customerId)
             .ToListAsync(cancellationToken);
     }

@@ -4,6 +4,7 @@ export interface ServiceTypeDto {
   id: string
   name: string
   description?: string
+  code: string
   icon?: string
   isActive: boolean
   displayOrder: number
@@ -14,6 +15,7 @@ export interface ServiceTypeDto {
 export interface CreateServiceTypeRequest {
   name: string
   description?: string
+  code: string
   icon?: string
   displayOrder: number
 }

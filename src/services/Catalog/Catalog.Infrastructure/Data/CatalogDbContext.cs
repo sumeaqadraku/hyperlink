@@ -32,7 +32,10 @@ public class CatalogDbContext : DbContext
             entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
             entity.HasIndex(e => e.Name).IsUnique();
             entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.Code).HasMaxLength(50).IsRequired();
+            entity.HasIndex(e => e.Code).IsUnique();
             entity.Property(e => e.Icon).HasMaxLength(100);
+            entity.Property(e => e.DisplayOrder).IsRequired();
         });
     }
 }

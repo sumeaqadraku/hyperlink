@@ -22,7 +22,13 @@ public class BillingDbContext : DbContext
             entity.ToTable("Invoices");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.InvoiceNumber).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.StripeInvoiceId).HasMaxLength(255);
+            entity.Property(e => e.StripeCustomerId).HasMaxLength(255);
+            entity.Property(e => e.StripePdfUrl).HasMaxLength(500);
             entity.HasIndex(e => e.InvoiceNumber).IsUnique();
+            entity.HasIndex(e => e.StripeInvoiceId);
+            entity.HasIndex(e => e.CustomerId);
+            entity.HasIndex(e => e.SubscriptionId);
             entity.HasMany(e => e.Items).WithOne(i => i.Invoice).HasForeignKey(i => i.InvoiceId);
             entity.HasMany(e => e.Payments).WithOne(p => p.Invoice).HasForeignKey(p => p.InvoiceId);
         });

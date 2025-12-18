@@ -12,8 +12,6 @@ public interface IStripeService
         string successUrl,
         string cancelUrl,
         Dictionary<string, string>? metadata = null);
-    
-    Event ConstructEvent(string json, string signature, string webhookSecret);
 }
 
 public class StripeService : IStripeService
@@ -66,10 +64,5 @@ public class StripeService : IStripeService
 
         var service = new SessionService();
         return await service.CreateAsync(options);
-    }
-
-    public Event ConstructEvent(string json, string signature, string webhookSecret)
-    {
-        return EventUtility.ConstructEvent(json, signature, webhookSecret);
     }
 }

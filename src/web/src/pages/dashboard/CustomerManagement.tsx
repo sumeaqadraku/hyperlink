@@ -44,12 +44,15 @@ export default function CustomerManagement() {
         customerService.getAll(),
         userService.getAll()
       ])
-      setCustomers(customersData)
-      setFilteredCustomers(customersData)
-      setUsers(usersData)
+      setCustomers(Array.isArray(customersData) ? customersData : [])
+      setFilteredCustomers(Array.isArray(customersData) ? customersData : [])
+      setUsers(Array.isArray(usersData) ? usersData : [])
     } catch (err: any) {
       console.error('Error fetching data:', err)
       setError('Failed to load data. Make sure you have admin privileges.')
+      setCustomers([])
+      setFilteredCustomers([])
+      setUsers([])
     } finally {
       setLoading(false)
     }

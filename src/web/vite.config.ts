@@ -18,15 +18,15 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/auth': {
-        target: 'http://localhost:5001',
+        target: 'http://localhost:5006',
         changeOrigin: true,
       },
       '/users': {
-        target: 'http://localhost:5001',
+        target: 'http://localhost:5006',
         changeOrigin: true,
       },
       '/admin': {
-        target: 'http://localhost:5001',
+        target: 'http://localhost:5006',
         changeOrigin: true,
       },
     },
