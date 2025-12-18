@@ -60,21 +60,42 @@ export default function ProfilePage() {
       setLoading(true)
       setError(null)
       
-      const [userResponse, infoResponse] = await Promise.all([
-        axios.get('/users/me', { withCredentials: true }),
-        axios.get('/users/me/information', { withCredentials: true })
-      ])
-      
+      // Fetch user auth data from Identity Service
+      const userResponse = await axios.get('/users/me', { withCredentials: true })
       setUserData(userResponse.data)
       
-      if (infoResponse.data && !infoResponse.data.message) {
-        const info = infoResponse.data
-        const formattedInfo = {
-          ...info,
-          dateOfBirth: info.dateOfBirth ? new Date(info.dateOfBirth).toISOString().split('T')[0] : ''
+      // Fetch customer profile from Customer Service (via Gateway)
+      try {
+        const token = localStorage.getItem('authToken')
+        const profileResponse = await axios.get('/api/customer/customers/me', { 
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        
+        if (profileResponse.data && !profileResponse.data.message) {
+          const info = profileResponse.data
+          const formattedInfo = {
+            id: info.id,
+            userId: info.userId,
+            firstName: info.firstName,
+            lastName: info.lastName,
+            gender: info.gender,
+            phoneNumber: info.phoneNumber,
+            dateOfBirth: info.dateOfBirth ? new Date(info.dateOfBirth).toISOString().split('T')[0] : '',
+            address: info.address,
+            city: info.city,
+            state: info.state,
+            country: info.country,
+            postalCode: info.postalCode,
+          }
+          setUserInfo(formattedInfo)
+          setOriginalUserInfo(formattedInfo)
         }
-        setUserInfo(formattedInfo)
-        setOriginalUserInfo(formattedInfo)
+      } catch (profileErr: any) {
+        // Customer profile might not exist yet - that's okay
+        if (profileErr.response?.status !== 404) {
+          console.error('Error fetching customer profile:', profileErr)
+        }
       }
     } catch (err: any) {
       console.error('Error fetching user data:', err)
@@ -104,6 +125,12 @@ export default function ProfilePage() {
       setError(null)
       setSuccess(null)
       
+      const token = localStorage.getItem('authToken')
+      const headers = { 
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+      
       const payload = {
         firstName: userInfo.firstName || null,
         lastName: userInfo.lastName || null,
@@ -118,9 +145,20 @@ export default function ProfilePage() {
       }
       
       if (userInfo.id) {
-        await axios.put('/users/me/information', payload, { withCredentials: true })
+        // Update existing customer profile
+        await axios.put('/api/customer/customers/me', payload, { 
+          withCredentials: true,
+          headers 
+        })
       } else {
-        await axios.post('/users/me/information', payload, { withCredentials: true })
+        // Create new customer profile
+        await axios.post('/api/customer/customers/me', {
+          ...payload,
+          email: userData?.email || ''
+        }, { 
+          withCredentials: true,
+          headers 
+        })
       }
       
       setSuccess('Profile updated successfully!')

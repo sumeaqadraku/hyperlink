@@ -1,10 +1,70 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Wifi, Smartphone, Tv, ArrowRight, Check } from 'lucide-react'
+import { Wifi, Smartphone, Tv, ArrowRight, Check, Loader2, Package } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/Card'
+import { formatCurrency } from '@/lib/utils'
+import axios from 'axios'
+
+interface Product {
+  id: string
+  name: string
+  description: string
+  productCode: string
+  price: number
+  isActive: boolean
+  category: number
+  serviceTypeId?: string | null
+  imageUrl?: string | null
+}
+
+interface ServiceType {
+  id: string
+  name: string
+  description?: string
+  icon?: string
+  isActive: boolean
+  displayOrder: number
+}
+
+const getCategoryIcon = (category: number) => {
+  switch (category) {
+    case 1: return Smartphone // Mobile
+    case 2: return Wifi // Internet
+    case 3: return Tv // Television
+    default: return Package
+  }
+}
 
 export default function HomePage() {
-  const services = [
+  const [products, setProducts] = useState<Product[]>([])
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [productsRes, serviceTypesRes] = await Promise.all([
+          axios.get('/api/catalog/products/active'),
+          axios.get('/api/catalog/servicetypes/active')
+        ])
+        setProducts(productsRes.data)
+        setServiceTypes(serviceTypesRes.data)
+      } catch (err) {
+        console.error('Failed to load data:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
+
+  const getServiceTypeName = (serviceTypeId?: string | null) => {
+    if (!serviceTypeId) return null
+    return serviceTypes.find(st => st.id === serviceTypeId)?.name || null
+  }
+
+  const staticServices = [
     {
       icon: Wifi,
       title: 'Fast Internet',
@@ -61,7 +121,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {services.map((service, index) => (
+            {staticServices.map((service, index) => (
               <Card key={index} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="h-12 w-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
@@ -86,6 +146,75 @@ export default function HomePage() {
               </Card>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Available Plans Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Available Plans</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Browse our current offers and find the perfect plan for you
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              No plans available at the moment. Check back soon!
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.slice(0, 8).map((product) => {
+                const IconComponent = getCategoryIcon(product.category)
+                return (
+                  <Card key={product.id} className="hover:shadow-lg transition-shadow flex flex-col">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="h-10 w-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <IconComponent className="h-5 w-5 text-primary" />
+                        </div>
+                        {getServiceTypeName(product.serviceTypeId) && (
+                          <span className="text-xs bg-secondary/10 text-secondary px-2 py-1 rounded-full">
+                            {getServiceTypeName(product.serviceTypeId)}
+                          </span>
+                        )}
+                      </div>
+                      <CardTitle className="text-lg">{product.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                      <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{product.description}</p>
+                      <div className="text-2xl font-bold text-primary">
+                        {formatCurrency(product.price)}
+                        <span className="text-sm font-normal text-muted-foreground">/month</span>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="pt-0">
+                      <Link to={`/offers/${product.id}`} className="w-full">
+                        <Button variant="outline" className="w-full">
+                          View Details
+                        </Button>
+                      </Link>
+                    </CardFooter>
+                  </Card>
+                )
+              })}
+            </div>
+          )}
+
+          {products.length > 8 && (
+            <div className="text-center mt-8">
+              <Link to="/offers">
+                <Button size="lg">
+                  View All Plans <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
 

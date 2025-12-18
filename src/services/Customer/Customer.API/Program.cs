@@ -1,14 +1,10 @@
-using System.Security.Claims;
 using System.Text;
 using Customer.Application;
-using Customer.Application.DTOs;
 using Customer.Application.Services;
 using Customer.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +17,12 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", builder =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        policy.WithOrigins("http://localhost:3000", "http://localhost:3001", "http://localhost:5173")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -46,6 +45,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddScoped<CustomerProfileService>();
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
@@ -76,55 +76,6 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapPost("/customers", async (CreateCustomerRequest request, CustomerProfileService profileService) =>
-{
-    var result = await profileService.CreateCustomerAsync(request);
-    if (result == null)
-    {
-        return Results.BadRequest(new { message = "Customer with this email already exists" });
-    }
-    return Results.Ok(result);
-})
-.WithName("CreateCustomer");
-
-app.MapGet("/api/customers/me", [Authorize] async (ClaimsPrincipal user, CustomerProfileService profileService) =>
-{
-    var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
-    {
-        return Results.Unauthorized();
-    }
-
-    var profile = await profileService.GetProfileByUserIdAsync(userId);
-    if (profile == null)
-    {
-        return Results.NotFound(new { message = "Customer profile not found" });
-    }
-
-    return Results.Ok(profile);
-})
-.WithName("GetMyProfile")
-.RequireAuthorization();
-
-app.MapPut("/api/customers/me", [Authorize] async (UpdateCustomerProfileRequest request, ClaimsPrincipal user, CustomerProfileService profileService) =>
-{
-    var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
-    {
-        return Results.Unauthorized();
-    }
-
-    var profile = await profileService.UpdateProfileAsync(userId, request);
-    if (profile == null)
-    {
-        return Results.NotFound(new { message = "Customer profile not found" });
-    }
-
-    return Results.Ok(profile);
-})
-.WithName("UpdateMyProfile")
-.RequireAuthorization();
 
 app.MapControllers();
 app.MapHealthChecks("/health");

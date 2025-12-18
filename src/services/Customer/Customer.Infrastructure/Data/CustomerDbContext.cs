@@ -22,8 +22,12 @@ public class CustomerDbContext : DbContext
         {
             entity.ToTable("Customers");
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
+            entity.HasIndex(e => e.UserId).IsUnique();
             entity.Property(e => e.Email).HasMaxLength(200).IsRequired();
             entity.HasIndex(e => e.Email).IsUnique();
+            entity.Property(e => e.Gender).HasMaxLength(20);
+            entity.Property(e => e.State).HasMaxLength(100);
             entity.HasMany(e => e.Accounts).WithOne(a => a.Customer).HasForeignKey(a => a.CustomerId);
             entity.HasMany(e => e.Contracts).WithOne(c => c.Customer).HasForeignKey(c => c.CustomerId);
         });

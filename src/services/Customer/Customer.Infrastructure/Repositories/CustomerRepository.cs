@@ -19,10 +19,21 @@ public class CustomerRepository : ICustomerRepository
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 
+    public async Task<Domain.Entities.Customer?> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Customers
+            .FirstOrDefaultAsync(c => c.UserId == userId, cancellationToken);
+    }
+
     public async Task<Domain.Entities.Customer?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await _context.Customers
             .FirstOrDefaultAsync(c => c.Email == email.ToLowerInvariant(), cancellationToken);
+    }
+
+    public async Task<bool> ExistsByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Customers.AnyAsync(c => c.UserId == userId, cancellationToken);
     }
 
     public async Task<IEnumerable<Domain.Entities.Customer>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -36,15 +47,15 @@ public class CustomerRepository : ICustomerRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public void Update(Domain.Entities.Customer customer)
+    public async Task UpdateAsync(Domain.Entities.Customer customer, CancellationToken cancellationToken = default)
     {
         _context.Customers.Update(customer);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public void Delete(Domain.Entities.Customer customer)
+    public async Task DeleteAsync(Domain.Entities.Customer customer, CancellationToken cancellationToken = default)
     {
         _context.Customers.Remove(customer);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

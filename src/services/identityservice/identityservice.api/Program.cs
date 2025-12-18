@@ -240,6 +240,54 @@ app.MapGet("/admin/users/{userId}", [Authorize(Roles = "Admin")] async (Guid use
 .WithName("GetUserById")
 .RequireAuthorization();
 
+// Admin: Get all users
+app.MapGet("/admin/users", [Authorize(Roles = "Admin")] async (UserManagementService userManagement) =>
+{
+    var users = await userManagement.GetAllUsersAsync();
+    return Results.Ok(users);
+})
+.WithName("GetAllUsers")
+.RequireAuthorization();
+
+// Admin: Create user
+app.MapPost("/admin/users", [Authorize(Roles = "Admin")] async (CreateUserRequest request, UserManagementService userManagement) =>
+{
+    var user = await userManagement.CreateUserAsync(request.Email, request.Password, request.Role ?? "User");
+    if (user == null)
+    {
+        return Results.BadRequest(new { message = "Email already exists" });
+    }
+    return Results.Created($"/admin/users", user);
+})
+.WithName("AdminCreateUser")
+.RequireAuthorization();
+
+// Admin: Update user
+app.MapPut("/admin/users/{userId}", [Authorize(Roles = "Admin")] async (Guid userId, AdminUpdateUserRequest request, UserManagementService userManagement) =>
+{
+    var result = await userManagement.AdminUpdateUserAsync(userId, request.Email, request.Role, request.IsActive);
+    if (!result)
+    {
+        return Results.BadRequest(new { message = "Failed to update user. User not found or email already exists." });
+    }
+    return Results.Ok(new { message = "User updated successfully" });
+})
+.WithName("AdminUpdateUser")
+.RequireAuthorization();
+
+// Admin: Delete user
+app.MapDelete("/admin/users/{userId}", [Authorize(Roles = "Admin")] async (Guid userId, UserManagementService userManagement) =>
+{
+    var result = await userManagement.HardDeleteUserAsync(userId);
+    if (!result)
+    {
+        return Results.NotFound(new { message = "User not found" });
+    }
+    return Results.Ok(new { message = "User deleted successfully" });
+})
+.WithName("AdminDeleteUser")
+.RequireAuthorization();
+
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "IdentityService" }))
     .WithName("HealthCheck");
 

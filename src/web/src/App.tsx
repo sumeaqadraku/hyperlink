@@ -19,12 +19,13 @@ import SignUpPage from './pages/auth/SignUpPage'
 import DashboardOverview from './pages/dashboard/DashboardOverview'
 import CatalogManagement from './pages/dashboard/CatalogManagement'
 import OfferDetailsManagement from './pages/dashboard/OfferDetailsManagement'
+import ServiceTypeManagement from './pages/dashboard/ServiceTypeManagement'
 import SubscriptionsPage from './pages/dashboard/SubscriptionsPage'
 import CustomerManagement from './pages/dashboard/CustomerManagement'
+import UserManagement from './pages/dashboard/UserManagement'
 import BillingPage from './pages/dashboard/BillingPage'
 import InvoiceDetailsPage from './pages/dashboard/InvoiceDetailsPage'
 import UsagePage from './pages/dashboard/UsagePage'
-import UserInformationManagement from './pages/dashboard/UserInformationManagement'
 
 function App() {
   return (
@@ -49,13 +50,14 @@ function App() {
           <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardOverview />} />
             <Route path="catalog" element={<CatalogManagement />} />
+            <Route path="service-types" element={<ServiceTypeManagement />} />
             <Route path="customers" element={<CustomerManagement />} />
             <Route path="offer-details" element={<OfferDetailsManagement />} />
             <Route path="subscriptions" element={<SubscriptionsPage />} />
             <Route path="billing" element={<BillingPage />} />
             <Route path="billing/invoice/:id" element={<InvoiceDetailsPage />} />
             <Route path="usage" element={<UsagePage />} />
-            <Route path="user-information" element={<UserInformationManagement />} />
+            <Route path="users" element={<UserManagement />} />
           </Route>
         </Routes>
       </Router>

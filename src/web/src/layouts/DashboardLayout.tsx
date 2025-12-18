@@ -10,6 +10,8 @@ import {
   Repeat,
   FileText,
   Users,
+  UserCog,
+  Layers,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { UserProfileDropdown } from '@/components/ui/UserProfileDropdown'
@@ -18,7 +20,9 @@ import { useAuth } from '@/contexts/AuthContext'
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Catalog', href: '/dashboard/catalog', icon: Package },
-  { name: 'Customers', href: '/dashboard/customers', icon: Users },
+  { name: 'Service Types', href: '/dashboard/service-types', icon: Layers, adminOnly: true },
+  { name: 'Users', href: '/dashboard/users', icon: UserCog, adminOnly: true },
+  { name: 'Customers', href: '/dashboard/customers', icon: Users, adminOnly: true },
   { name: 'Offer Details', href: '/dashboard/offer-details', icon: FileText },
   { name: 'Subscriptions', href: '/dashboard/subscriptions', icon: Repeat },
   { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
@@ -66,7 +70,9 @@ export function DashboardLayout() {
           </div>
 
           <nav className="p-4 space-y-2">
-            {navigation.map((item) => (
+            {navigation
+              .filter(item => !item.adminOnly || user?.isAdmin)
+              .map((item) => (
               <Link
                 key={item.name}
                 to={item.href}

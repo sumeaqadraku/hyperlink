@@ -1,59 +1,141 @@
-import { apiClient } from './api'
+import axios from 'axios'
 
 export interface CustomerDto {
   id: string
+  userId: string
   firstName: string
   lastName: string
   email: string
   phoneNumber: string
-  dateOfBirth: string
+  gender?: string
+  dateOfBirth?: string
   address?: string
   city?: string
+  state?: string
   postalCode?: string
   country?: string
-  status: string
+  status: number
+  createdAt: string
+  updatedAt?: string
 }
 
 export interface CreateCustomerRequest {
-  firstName: string
-  lastName: string
+  userId: string
   email: string
-  phoneNumber: string
-  dateOfBirth: string
-}
-
-export interface UpdateCustomerRequest {
-  firstName: string
-  lastName: string
-  phoneNumber: string
-  dateOfBirth: string
+  firstName?: string
+  lastName?: string
+  phoneNumber?: string
+  gender?: string
+  dateOfBirth?: string
   address?: string
   city?: string
+  state?: string
   postalCode?: string
   country?: string
 }
 
+export interface UpdateCustomerRequest {
+  firstName?: string
+  lastName?: string
+  phoneNumber?: string
+  gender?: string
+  dateOfBirth?: string
+  address?: string
+  city?: string
+  state?: string
+  postalCode?: string
+  country?: string
+}
+
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('authToken')
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  }
+}
+
 export const customerService = {
-  getAll: async () => {
-    const res = await apiClient.get<CustomerDto[]>('/customer/customers')
+  getAll: async (): Promise<CustomerDto[]> => {
+    const res = await axios.get('/api/customer/customers', { 
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
     return res.data
   },
-  getById: async (id: string) => {
-    const res = await apiClient.get<CustomerDto>(`/customer/customers/${id}`)
+
+  getById: async (id: string): Promise<CustomerDto> => {
+    const res = await axios.get(`/api/customer/customers/${id}`, { 
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
     return res.data
   },
-  getMyProfile: async () => {
-    const res = await apiClient.get<CustomerDto>('/customer/customers/me')
+
+  getByUserId: async (userId: string): Promise<CustomerDto> => {
+    const res = await axios.get(`/api/customer/customers/by-user/${userId}`, { 
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
     return res.data
   },
-  create: async (payload: CreateCustomerRequest) => {
-    const res = await apiClient.post<CustomerDto>('/customer/customers', payload)
+
+  getMyProfile: async (): Promise<CustomerDto | null> => {
+    try {
+      const res = await axios.get('/api/customer/customers/me', { 
+        withCredentials: true,
+        headers: getAuthHeaders()
+      })
+      if (res.data.message) return null
+      return res.data
+    } catch {
+      return null
+    }
+  },
+
+  create: async (payload: CreateCustomerRequest): Promise<CustomerDto> => {
+    const res = await axios.post('/api/customer/customers', payload, { 
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
     return res.data
   },
-  update: async (id: string, payload: UpdateCustomerRequest) => {
-    await apiClient.put(`/customer/customers/${id}`, payload)
+
+  createMyProfile: async (payload: CreateCustomerRequest): Promise<CustomerDto> => {
+    const res = await axios.post('/api/customer/customers/me', payload, { 
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
+    return res.data
   },
-  delete: async (id: string) => {
-    await apiClient.delete(`/customer/customers/${id}`)
+
+  update: async (userId: string, payload: UpdateCustomerRequest): Promise<CustomerDto> => {
+    const res = await axios.put(`/api/customer/customers/by-user/${userId}`, payload, { 
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
+    return res.data
+  },
+
+  updateMyProfile: async (payload: UpdateCustomerRequest): Promise<CustomerDto> => {
+    const res = await axios.put('/api/customer/customers/me', payload, { 
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
+    return res.data
+  },
+
+  delete: async (userId: string): Promise<void> => {
+    await axios.delete(`/api/customer/customers/by-user/${userId}`, { 
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
+  },
+
+  deleteMyProfile: async (): Promise<void> => {
+    await axios.delete('/api/customer/customers/me', { 
+      withCredentials: true,
+      headers: getAuthHeaders()
+    })
   },
 }

@@ -10,17 +10,19 @@ public class Product : BaseEntity, IAggregateRoot
     public decimal Price { get; private set; }
     public bool IsActive { get; private set; }
     public ProductCategory Category { get; private set; }
+    public Guid? ServiceTypeId { get; private set; }
     public string? ImageUrl { get; private set; }
 
     // Navigation properties
     public ICollection<TariffPlan> TariffPlans { get; private set; }
+    public ServiceType? ServiceType { get; private set; }
 
     private Product() 
     {
         TariffPlans = new List<TariffPlan>();
     }
 
-    public Product(string name, string description, string productCode, decimal price, ProductCategory category)
+    public Product(string name, string description, string productCode, decimal price, ProductCategory category, Guid? serviceTypeId = null)
         : base()
     {
         SetName(name);
@@ -28,8 +30,15 @@ public class Product : BaseEntity, IAggregateRoot
         SetProductCode(productCode);
         SetPrice(price);
         Category = category;
+        ServiceTypeId = serviceTypeId;
         IsActive = true;
         TariffPlans = new List<TariffPlan>();
+    }
+
+    public void SetServiceType(Guid? serviceTypeId)
+    {
+        ServiceTypeId = serviceTypeId;
+        MarkAsUpdated();
     }
 
     public void SetName(string name)

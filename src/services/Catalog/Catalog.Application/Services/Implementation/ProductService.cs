@@ -60,7 +60,7 @@ public class ProductService : IProductService
             if (existingProduct != null)
                 return Result.Failure<ProductDto>($"Product with code {dto.ProductCode} already exists");
 
-            var product = new Product(dto.Name, dto.Description, dto.ProductCode, dto.Price, dto.Category);
+            var product = new Product(dto.Name, dto.Description, dto.ProductCode, dto.Price, dto.Category, dto.ServiceTypeId);
             
             if (!string.IsNullOrEmpty(dto.ImageUrl))
                 product.SetImageUrl(dto.ImageUrl);
@@ -89,6 +89,7 @@ public class ProductService : IProductService
             product.SetName(dto.Name);
             product.SetDescription(dto.Description);
             product.SetPrice(dto.Price);
+            product.SetServiceType(dto.ServiceTypeId);
             
             if (dto.ImageUrl != null)
                 product.SetImageUrl(dto.ImageUrl);
