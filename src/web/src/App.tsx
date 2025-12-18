@@ -24,6 +24,7 @@ import CustomerManagement from './pages/dashboard/CustomerManagement'
 import BillingPage from './pages/dashboard/BillingPage'
 import InvoiceDetailsPage from './pages/dashboard/InvoiceDetailsPage'
 import UsagePage from './pages/dashboard/UsagePage'
+import UserInformationManagement from './pages/dashboard/UserInformationManagement'
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
             <Route path="billing" element={<BillingPage />} />
             <Route path="billing/invoice/:id" element={<InvoiceDetailsPage />} />
             <Route path="usage" element={<UsagePage />} />
+            <Route path="user-information" element={<UserInformationManagement />} />
           </Route>
         </Routes>
       </Router>
