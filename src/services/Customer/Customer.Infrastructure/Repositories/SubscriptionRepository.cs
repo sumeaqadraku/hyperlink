@@ -16,22 +16,31 @@ public class SubscriptionRepository : ISubscriptionRepository
     public async Task<Customer.Domain.Entities.Subscription?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.Subscriptions
-            .Include(s => s.Account)
+            .Include(s => s.Customer)
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);
     }
 
-    public async Task<IEnumerable<Customer.Domain.Entities.Subscription>> GetByAccountIdAsync(Guid accountId, CancellationToken cancellationToken = default)
+    public async Task<Customer.Domain.Entities.Subscription?> GetByStripeSessionIdAsync(string stripeSessionId, CancellationToken cancellationToken = default)
     {
         return await _context.Subscriptions
-            .Where(s => s.AccountId == accountId)
+            .Include(s => s.Customer)
+            .FirstOrDefaultAsync(s => s.StripeSessionId == stripeSessionId, cancellationToken);
+    }
+
+    public async Task<IEnumerable<Customer.Domain.Entities.Subscription>> GetByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Subscriptions
+            .Include(s => s.Customer)
+            .Where(s => s.CustomerId == customerId)
+            .OrderByDescending(s => s.CreatedAt)
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<Customer.Domain.Entities.Subscription>> GetActiveByCustomerIdAsync(Guid customerId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Customer.Domain.Entities.Subscription>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await _context.Subscriptions
-            .Include(s => s.Account!)
-            .Where(s => s.Account!.CustomerId == customerId && s.Status == Customer.Domain.Entities.SubscriptionStatus.Active)
+            .Include(s => s.Customer)
+            .OrderByDescending(s => s.CreatedAt)
             .ToListAsync(cancellationToken);
     }
 
@@ -41,10 +50,10 @@ public class SubscriptionRepository : ISubscriptionRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
-    public void Update(Customer.Domain.Entities.Subscription subscription)
+    public async Task UpdateAsync(Customer.Domain.Entities.Subscription subscription, CancellationToken cancellationToken = default)
     {
         _context.Subscriptions.Update(subscription);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 
     public void Delete(Customer.Domain.Entities.Subscription subscription)

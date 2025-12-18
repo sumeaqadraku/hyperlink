@@ -10,5 +10,19 @@ public class AutoMapperProfile : Profile
     {
         CreateMap<Subscription, SubscriptionDto>();
         CreateMap<UsageRecord, UsageRecordDto>();
+        
+        // Device mappings
+        CreateMap<Device, DeviceDto>();
+        CreateMap<CreateDeviceDto, Device>();
+        CreateMap<AssignDeviceDto, Device>();
+        
+        // SimCard mappings
+        CreateMap<SimCard, SimCardDto>();
+        CreateMap<CreateSimCardDto, SimCard>();
+        CreateMap<AssignSimCardDto, SimCard>();
+        
+        // ProvisioningRequest mappings
+        CreateMap<ProvisioningRequest, ProvisioningRequestDto>();
+        CreateMap<CreateProvisioningRequestDto, ProvisioningRequest>();
     }
 }

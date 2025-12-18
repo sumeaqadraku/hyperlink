@@ -22,12 +22,8 @@ public class CustomerDbContext : DbContext
         {
             entity.ToTable("Customers");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.UserId).IsRequired();
-            entity.HasIndex(e => e.UserId).IsUnique();
             entity.Property(e => e.Email).HasMaxLength(200).IsRequired();
             entity.HasIndex(e => e.Email).IsUnique();
-            entity.Property(e => e.Gender).HasMaxLength(20);
-            entity.Property(e => e.State).HasMaxLength(100);
             entity.HasMany(e => e.Accounts).WithOne(a => a.Customer).HasForeignKey(a => a.CustomerId);
             entity.HasMany(e => e.Contracts).WithOne(c => c.Customer).HasForeignKey(c => c.CustomerId);
         });
@@ -36,7 +32,6 @@ public class CustomerDbContext : DbContext
         {
             entity.ToTable("Accounts");
             entity.HasKey(e => e.Id);
-            entity.HasMany(a => a.Subscriptions).WithOne(s => s.Account!).HasForeignKey(s => s.AccountId);
         });
 
         modelBuilder.Entity<Contract>(entity =>
@@ -51,6 +46,11 @@ public class CustomerDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.SubscriptionNumber).IsRequired();
             entity.HasIndex(e => e.SubscriptionNumber).IsUnique();
+            entity.Property(e => e.Price).HasPrecision(18, 2);
+            entity.Property(e => e.StripeSessionId).HasMaxLength(500);
+            entity.Property(e => e.StripeCustomerId).HasMaxLength(500);
+            entity.Property(e => e.StripeSubscriptionId).HasMaxLength(500);
+            entity.HasOne(s => s.Customer).WithMany().HasForeignKey(s => s.CustomerId);
         });
     }
 }
