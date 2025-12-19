@@ -1,0 +1,77 @@
+<mxfile host="65bd71144e">
+  <diagram name="Billing Service Package Diagram" id="package-diagram">
+    <mxGraphModel dx="1295" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- API Layer Package -->
+        <mxCell id="api-package" value="API Layer" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=80;tabHeight=30;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="300" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="api-controllers" value="&lt;b&gt;Controllers&lt;/b&gt;&lt;br/&gt;InvoicesController&lt;br/&gt;PaymentsController&lt;br/&gt;BalanceController" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="api-package">
+          <mxGeometry x="10" y="40" width="280" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Application Layer Package -->
+        <mxCell id="app-package" value="Application Layer" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=110;tabHeight=30;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="700" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="app-services" value="&lt;b&gt;Services&lt;/b&gt;&lt;br/&gt;InvoiceService, PaymentService&lt;br/&gt;BalanceService, AutoMapperProfile" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="app-package">
+          <mxGeometry x="20" y="40" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="app-interfaces" value="&lt;b&gt;Service Interfaces&lt;/b&gt;&lt;br/&gt;IInvoiceService, IPaymentService&lt;br/&gt;IBalanceService" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="app-package">
+          <mxGeometry x="360" y="40" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="app-dtos" value="&lt;b&gt;DTOs&lt;/b&gt;&lt;br/&gt;InvoiceDto, InvoiceItemDto, PaymentDto, BalanceDto&lt;br/&gt;CreateInvoiceDto, CreateInvoiceItemDto, CreatePaymentDto&lt;br/&gt;CreateInvoiceFromSubscriptionDto, UpdateInvoiceStatusDto" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="app-package">
+          <mxGeometry x="20" y="140" width="660" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Domain Layer Package -->
+        <mxCell id="domain-package" value="Domain Layer" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=100;tabHeight=30;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="40" y="530" width="700" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="domain-entities" value="&lt;b&gt;Entities &amp; Aggregates&lt;/b&gt;&lt;br/&gt;Invoice, InvoiceItem, Payment&lt;br/&gt;BaseEntity, IAggregateRoot" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="domain-package">
+          <mxGeometry x="20" y="40" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="domain-enums" value="&lt;b&gt;Enumerations&lt;/b&gt;&lt;br/&gt;InvoiceStatus, PaymentMethod, PaymentStatus" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="domain-package">
+          <mxGeometry x="360" y="40" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="domain-repo-interfaces" value="&lt;b&gt;Repository Interfaces&lt;/b&gt;&lt;br/&gt;IInvoiceRepository, IPaymentRepository, IUnitOfWork" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="domain-package">
+          <mxGeometry x="20" y="130" width="660" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Infrastructure Layer Package -->
+        <mxCell id="infra-package" value="Infrastructure Layer" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=130;tabHeight=30;tabPosition=left;html=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="800" y="530" width="300" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="infra-impl" value="&lt;b&gt;Implementations&lt;/b&gt;&lt;br/&gt;InvoiceRepository, PaymentRepository&lt;br/&gt;UnitOfWork, BillingDbContext" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="infra-package">
+          <mxGeometry x="10" y="40" width="280" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- Package Dependencies -->
+        <mxCell id="dep-api-app" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeWidth=2;" edge="1" parent="1" source="api-package" target="app-package">
+          <mxGeometry relative="1" as="geometry">
+            <Array points="190 215" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dep-app-domain" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeWidth=2;" edge="1" parent="1" source="app-package" target="domain-package">
+          <mxGeometry relative="1" as="geometry">
+            <Array points="390 505" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dep-infra-domain" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;dashed=1;endArrow=open;endFill=0;strokeWidth=2;" edge="1" parent="1" source="infra-package" target="domain-package">
+          <mxGeometry relative="1" as="geometry">
+            <Array points="770 630" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="dep-infra-context" value="Depends on" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="dep-infra-domain">
+          <mxGeometry x="-0.1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
