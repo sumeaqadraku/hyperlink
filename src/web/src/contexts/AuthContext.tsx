@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import axios from 'axios'
+import { gatewayClient } from '@/services/api'
 
 interface User {
   name: string
@@ -41,7 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post('/auth/login', 
+      const response = await gatewayClient.post(
+        '/auth/login',
         { email, password },
         { withCredentials: true } // Important: sends and receives cookies
       )
@@ -72,12 +73,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const [firstName, ...lastNameParts] = data.fullName.split(' ')
       const lastName = lastNameParts.join(' ')
       
-      const response = await axios.post('/auth/register', 
+      const response = await gatewayClient.post(
+        '/auth/register',
         {
           email: data.email,
           password: data.password,
           firstName: firstName || undefined,
-          lastName: lastName || undefined
+          lastName: lastName || undefined,
         },
         { withCredentials: true } // Important: sends and receives cookies
       )
@@ -111,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       // Call backend to revoke refresh token and clear cookie
-      await axios.post('/auth/logout', {}, { withCredentials: true })
+      await gatewayClient.post('/auth/logout', {}, { withCredentials: true })
     } catch (error) {
       console.error('Logout error:', error)
     } finally {

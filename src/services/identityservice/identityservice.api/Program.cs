@@ -6,6 +6,7 @@ using IdentityService.Application.Services;
 using IdentityService.Infrastructure.Data;
 using IdentityService.Infrastructure.Repositories;
 using IdentityService.Infrastructure.Security;
+using IdentityService.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,14 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
+
+// Register HttpClient for Customer Service
+var customerServiceUrl = builder.Configuration["Services:CustomerService"] ?? "http://customer-api:80";
+builder.Services.AddHttpClient<ICustomerServiceClient, CustomerServiceClient>(client =>
+{
+    client.BaseAddress = new Uri(customerServiceUrl);
+});
+
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserManagementService>();
 

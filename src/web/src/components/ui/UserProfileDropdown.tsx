@@ -52,31 +52,13 @@ export function UserProfileDropdown({
     {
       icon: User,
       label: 'My Profile',
-      href: '/profile',
+      href: '/profile/my',
       show: true,
     },
     {
       icon: Repeat,
       label: 'My Subscriptions',
-      href: '/dashboard/subscriptions',
-      show: true,
-    },
-    {
-      icon: CreditCard,
-      label: 'Billing & Invoices',
-      href: '/dashboard/billing',
-      show: true,
-    },
-    {
-      icon: Activity,
-      label: 'Usage',
-      href: '/dashboard/usage',
-      show: true,
-    },
-    {
-      icon: Settings,
-      label: 'Settings',
-      href: '/settings',
+      href: '/profile/subscriptions',
       show: true,
     },
   ]

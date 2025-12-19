@@ -10,17 +10,20 @@ public class AuthService
     private readonly IPasswordHasher _passwordHasher;
     private readonly ITokenService _tokenService;
     private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly ICustomerServiceClient? _customerServiceClient;
 
     public AuthService(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         ITokenService tokenService,
-        IRefreshTokenRepository refreshTokenRepository)
+        IRefreshTokenRepository refreshTokenRepository,
+        ICustomerServiceClient? customerServiceClient = null)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _tokenService = tokenService;
         _refreshTokenRepository = refreshTokenRepository;
+        _customerServiceClient = customerServiceClient;
     }
 
     public async Task<AuthResponse?> RegisterAsync(RegisterRequest request, string ipAddress)
@@ -41,6 +44,16 @@ public class AuthService
         };
 
         await _userRepository.AddAsync(user);
+
+        // Auto-create customer profile
+        if (_customerServiceClient != null)
+        {
+            await _customerServiceClient.CreateCustomerProfileAsync(
+                user.Id, 
+                user.Email, 
+                request.FirstName, 
+                request.LastName);
+        }
 
         var token = _tokenService.GenerateAccessToken(user);
         var refreshToken = await CreateRefreshTokenAsync(user.Id, ipAddress);

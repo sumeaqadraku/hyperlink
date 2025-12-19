@@ -20,7 +20,7 @@ export interface CustomerDto {
 }
 
 export interface CreateCustomerRequest {
-  userId: string
+  userId?: string
   email: string
   firstName?: string
   lastName?: string

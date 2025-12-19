@@ -54,11 +54,16 @@ export default function OfferDetails() {
         productId: product.id,
         productName: product.name,
         price: product.price,
-        successUrl: `${window.location.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}&subscription_id=${result.subscriptionId}`,
+        successUrl: `${window.location.origin}/subscription-success?session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${window.location.origin}/offers/${product.id}`
       })
 
-      window.location.href = result.checkoutUrl
+      if (result.checkoutUrl) {
+        window.location.href = result.checkoutUrl
+      } else {
+        setError('Failed to get checkout URL')
+        setSubscribing(false)
+      }
     } catch (err: any) {
       console.error('Error creating subscription:', err)
       setError(err.response?.data?.message || 'Failed to create subscription')

@@ -26,8 +26,8 @@ export function PublicLayout() {
                 Plans & Offers
               </Link>
               {isLoggedIn && (
-                <Link to="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
-                  My Account
+                <Link to="/profile/my" className="text-muted-foreground hover:text-foreground transition-colors">
+                  My Profile
                 </Link>
               )}
             </nav>

@@ -125,9 +125,9 @@ public class CustomersController : ControllerBase
         return Ok(new { message = "Customer profile deleted successfully" });
     }
 
-    // Create customer (Admin or system call after registration)
+    // Create customer (internal service call after registration - no auth required for service-to-service)
     [HttpPost]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<ActionResult<CustomerDto>> Create([FromBody] CreateCustomerRequest request, CancellationToken cancellationToken)
     {
         var customer = await _customerProfileService.CreateCustomerAsync(request, cancellationToken);

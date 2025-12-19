@@ -18,25 +18,31 @@ export default function SubscriptionSuccess() {
   const confirmSubscription = async () => {
     try {
       const sessionId = searchParams.get('session_id')
-      const subscriptionId = searchParams.get('subscription_id')
 
-      if (!sessionId || !subscriptionId) {
-        setError('Missing session or subscription ID')
+      if (!sessionId) {
+        setError('Missing session ID')
         setConfirming(false)
         return
       }
 
-      // Confirm subscription with backend
+      // Confirm subscription with backend using session ID
+      // Backend will look up the subscription by the Stripe session ID
       await axios.post(
-        `/api/customer/subscriptions/${subscriptionId}/confirm`,
+        `/api/customer/subscriptions/confirm-by-session`,
         { sessionId },
-        { withCredentials: true }
+        { 
+          withCredentials: true,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            'Content-Type': 'application/json'
+          }
+        }
       )
 
       setConfirming(false)
     } catch (err: any) {
       console.error('Error confirming subscription:', err)
-      setError('Failed to confirm subscription')
+      setError(err.response?.data?.message || 'Failed to confirm subscription')
       setConfirming(false)
     }
   }

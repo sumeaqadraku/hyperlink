@@ -60,4 +60,12 @@ public class SubscriptionsController : ControllerBase
         if (!ok) return BadRequest(new { message = "Failed to confirm subscription" });
         return Ok(new { message = "Subscription confirmed successfully" });
     }
+
+    [HttpPost("confirm-by-session")]
+    public async Task<ActionResult> ConfirmBySession([FromBody] ConfirmSubscriptionRequest request, CancellationToken ct)
+    {
+        var ok = await _subscriptionService.ConfirmSubscriptionBySessionAsync(request.SessionId, ct);
+        if (!ok) return BadRequest(new { message = "Failed to confirm subscription" });
+        return Ok(new { message = "Subscription confirmed successfully" });
+    }
 }

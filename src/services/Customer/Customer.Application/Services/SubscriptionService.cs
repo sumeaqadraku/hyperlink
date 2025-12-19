@@ -104,6 +104,19 @@ public class SubscriptionService
         var subscription = await _subscriptionRepository.GetByIdAsync(subscriptionId, cancellationToken);
         if (subscription == null) return false;
 
+        return await ConfirmSubscriptionInternalAsync(subscription, sessionId, cancellationToken);
+    }
+
+    public async Task<bool> ConfirmSubscriptionBySessionAsync(string sessionId, CancellationToken cancellationToken = default)
+    {
+        var subscription = await _subscriptionRepository.GetByStripeSessionIdAsync(sessionId, cancellationToken);
+        if (subscription == null) return false;
+
+        return await ConfirmSubscriptionInternalAsync(subscription, sessionId, cancellationToken);
+    }
+
+    private async Task<bool> ConfirmSubscriptionInternalAsync(Subscription subscription, string sessionId, CancellationToken cancellationToken)
+    {
         try
         {
             // Retrieve session from Stripe to get customer and subscription IDs
