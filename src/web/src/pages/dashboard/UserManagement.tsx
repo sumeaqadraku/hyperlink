@@ -51,6 +51,10 @@ export default function UserManagement() {
     setIsModalOpen(true)
   }
 
+  const [newUserPassword, setNewUserPassword] = useState('')
+  const [newUserFirstName, setNewUserFirstName] = useState('')
+  const [newUserLastName, setNewUserLastName] = useState('')
+
   const handleCreate = () => {
     setEditingUser({
       id: '',
@@ -59,6 +63,9 @@ export default function UserManagement() {
       isActive: true,
       createdAt: new Date().toISOString()
     })
+    setNewUserPassword('')
+    setNewUserFirstName('')
+    setNewUserLastName('')
     setIsCreateMode(true)
     setIsModalOpen(true)
   }
@@ -69,9 +76,15 @@ export default function UserManagement() {
     try {
       setError(null)
       if (isCreateMode) {
+        if (!newUserPassword || newUserPassword.length < 6) {
+          setError('Password must be at least 6 characters')
+          return
+        }
         const request: CreateUserRequest = {
           email: editingUser.email,
-          password: 'TempPassword123!',
+          password: newUserPassword,
+          firstName: newUserFirstName || undefined,
+          lastName: newUserLastName || undefined,
           role: editingUser.role || 'User'
         }
         await userService.create(request)
@@ -222,14 +235,53 @@ export default function UserManagement() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
                 <input
                   type="email"
                   value={editingUser.email}
                   onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="user@example.com"
                 />
               </div>
+
+              {isCreateMode && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+                    <input
+                      type="password"
+                      value={newUserPassword}
+                      onChange={(e) => setNewUserPassword(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="Min. 6 characters"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                      <input
+                        type="text"
+                        value={newUserFirstName}
+                        onChange={(e) => setNewUserFirstName(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="John"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                      <input
+                        type="text"
+                        value={newUserLastName}
+                        onChange={(e) => setNewUserLastName(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="Doe"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
@@ -243,15 +295,17 @@ export default function UserManagement() {
                 </select>
               </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={editingUser.isActive}
-                  onChange={(e) => setEditingUser({ ...editingUser, isActive: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label className="ml-2 text-sm text-gray-700">Active</label>
-              </div>
+              {!isCreateMode && (
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={editingUser.isActive}
+                    onChange={(e) => setEditingUser({ ...editingUser, isActive: e.target.checked })}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label className="ml-2 text-sm text-gray-700">Active</label>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end gap-3 mt-6">

@@ -245,6 +245,25 @@ app.MapGet("/admin/users/{userId}", [Authorize(Roles = "Admin")] async (Guid use
 .WithName("GetUserById")
 .RequireAuthorization();
 
+app.MapPost("/admin/users", [Authorize(Roles = "Admin")] async (AdminCreateUserRequest request, AuthService authService, HttpContext httpContext) =>
+{
+    var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+    var result = await authService.AdminCreateUserAsync(request, ipAddress);
+    if (result == null)
+    {
+        return Results.BadRequest(new { message = "Email already exists" });
+    }
+    return Results.Ok(new 
+    {
+        id = result.Id,
+        email = result.Email,
+        role = result.Role,
+        message = "User created successfully"
+    });
+})
+.WithName("AdminCreateUser")
+.RequireAuthorization();
+
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "IdentityService" }))
     .WithName("HealthCheck");
 

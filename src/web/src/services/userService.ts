@@ -12,6 +12,8 @@ export interface UserDto {
 export interface CreateUserRequest {
   email: string
   password: string
+  firstName?: string
+  lastName?: string
   role?: string
 }
 

@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { Outlet, Link, useLocation, Navigate } from 'react-router-dom'
 import {
   LayoutDashboard,
   Package,
@@ -15,6 +15,7 @@ import {
   Smartphone,
   CreditCard as SimCardIcon,
   ClipboardList,
+  ShieldAlert,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { UserProfileDropdown } from '@/components/ui/UserProfileDropdown'
@@ -37,7 +38,17 @@ const navigation = [
 
 export function DashboardLayout() {
   const location = useLocation()
-  const { user } = useAuth()
+  const { user, isLoggedIn } = useAuth()
+
+  // Redirect to login if not logged in
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />
+  }
+
+  // Redirect non-admin users to home page
+  if (!user?.isAdmin) {
+    return <Navigate to="/" replace />
+  }
 
   return (
     <div className="min-h-screen bg-background">

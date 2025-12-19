@@ -1,85 +1,98 @@
-import { useMemo, useState } from 'react'
-import { useQueries, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { customerService } from '@/services/customerService'
-import { accountService } from '@/services/accountService'
-import { customerSubscriptionsService } from '@/services/customerSubscriptionsService'
+import { subscriptionService } from '@/services/subscriptionService'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
+import { useAuth } from '@/contexts/AuthContext'
+import { Loader2, Package, Calendar, CreditCard } from 'lucide-react'
+import { formatCurrency } from '@/lib/utils'
 
 export default function MySubscriptions() {
-  const { data: profile, isLoading: profileLoading, error: profileError } = useQuery({
+  const { user } = useAuth()
+
+  const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['myProfile'],
     queryFn: () => customerService.getMyProfile(),
+    enabled: !!user,
   })
 
-  const customerId = profile?.id
-
-  const { data: accounts = [], isLoading: accountsLoading } = useQuery({
-    queryKey: ['accounts', customerId],
-    queryFn: () => accountService.getByCustomerId(customerId!),
-    enabled: !!customerId,
+  const { data: subscriptions = [], isLoading: subscriptionsLoading } = useQuery({
+    queryKey: ['mySubscriptions', profile?.id],
+    queryFn: () => subscriptionService.getByCustomerId(profile!.id),
+    enabled: !!profile?.id,
   })
 
-  const subscriptionQueries = useQueries({
-    queries: (accounts || []).map((a) => ({
-      queryKey: ['subscriptions', a.id],
-      queryFn: () => customerSubscriptionsService.getByAccount(a.id),
-      enabled: !!a.id,
-    })),
-  })
+  if (!user) {
+    return (
+      <div className="container mx-auto py-8">
+        <Card className="p-8 text-center">
+          <h2 className="text-xl font-semibold mb-2">Please Sign In</h2>
+          <p className="text-gray-600 mb-4">You need to be logged in to view your subscriptions.</p>
+          <Link to="/login">
+            <Button>Sign In</Button>
+          </Link>
+        </Card>
+      </div>
+    )
+  }
 
-  const subscriptions = useMemo(() => {
-    return subscriptionQueries.flatMap((q) => q.data || [])
-  }, [subscriptionQueries])
-
-  if (profileLoading || accountsLoading) return <div className="p-6">Loading...</div>
-  if (profileError) return <div className="p-6 text-red-600">Please sign in to view subscriptions.</div>
+  if (profileLoading || subscriptionsLoading) {
+    return (
+      <div className="container mx-auto py-8 flex justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-secondary" />
+      </div>
+    )
+  }
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      <Card>
+    <div className="container mx-auto py-8 px-4">
+      <Card className="max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle>My Accounts ({accounts.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {accounts.length === 0 ? (
-            <div className="text-gray-500">You have no accounts yet.</div>
-          ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              {accounts.map((a) => (
-                <div key={a.id} className="border rounded p-4">
-                  <div className="font-semibold">Account #{a.accountNumber}</div>
-                  <div className="text-sm text-gray-600 mt-1">Type: {a.type} • Balance: {a.balance.toFixed(2)}</div>
-                  <div className="mt-2">
-                    <Badge variant={a.isActive ? 'default' : 'secondary'}>
-                      {a.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>My Subscriptions ({subscriptions.length})</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            My Subscriptions
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {subscriptions.length === 0 ? (
-            <div className="text-gray-500">You have no subscriptions yet.</div>
+            <div className="text-center py-8">
+              <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-600 mb-4">You don't have any subscriptions yet.</p>
+              <Link to="/offers">
+                <Button className="bg-secondary hover:bg-secondary/90">
+                  Browse Offers
+                </Button>
+              </Link>
+            </div>
           ) : (
-            <div className="space-y-3">
-              {subscriptions.map((s) => (
-                <div key={s.id} className="border rounded p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold">{s.subscriptionNumber}</div>
-                      <div className="text-sm text-gray-600">Product: {s.productId}</div>
-                      <div className="text-sm text-gray-600">Start: {new Date(s.startDate).toLocaleDateString()}</div>
+            <div className="space-y-4">
+              {subscriptions.map((sub) => (
+                <div key={sub.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <div className="font-semibold text-lg">{sub.productName || 'Subscription'}</div>
+                      <div className="text-sm text-gray-500">#{sub.subscriptionNumber}</div>
+                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-2">
+                        <span className="flex items-center gap-1">
+                          <CreditCard className="h-4 w-4" />
+                          {formatCurrency(sub.price)}/month
+                        </span>
+                        {sub.startDate && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-4 w-4" />
+                            Started {new Date(sub.startDate).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <Badge variant={s.status === 'Active' ? 'default' : 'secondary'}>{s.status}</Badge>
+                    <Badge 
+                      variant={sub.status === 'Active' ? 'default' : 'secondary'}
+                      className={sub.status === 'Active' ? 'bg-green-100 text-green-800' : ''}
+                    >
+                      {sub.status}
+                    </Badge>
                   </div>
                 </div>
               ))}

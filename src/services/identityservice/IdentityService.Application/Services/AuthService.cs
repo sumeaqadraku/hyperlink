@@ -170,4 +170,47 @@ public class AuthService
         
         return true;
     }
+
+    public async Task<AuthResponse?> AdminCreateUserAsync(AdminCreateUserRequest request, string ipAddress)
+    {
+        if (await _userRepository.EmailExistsAsync(request.Email))
+        {
+            return null;
+        }
+
+        // Validate role
+        var validRoles = new[] { "User", "Admin" };
+        var role = validRoles.Contains(request.Role) ? request.Role : "User";
+
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = request.Email,
+            PasswordHash = _passwordHasher.HashPassword(request.Password),
+            Role = role,
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true
+        };
+
+        await _userRepository.AddAsync(user);
+
+        // Auto-create customer profile
+        if (_customerServiceClient != null)
+        {
+            await _customerServiceClient.CreateCustomerProfileAsync(
+                user.Id, 
+                user.Email, 
+                request.FirstName, 
+                request.LastName);
+        }
+
+        return new AuthResponse
+        {
+            Id = user.Id,
+            Token = string.Empty,
+            RefreshToken = string.Empty,
+            Email = user.Email,
+            Role = user.Role
+        };
+    }
 }
